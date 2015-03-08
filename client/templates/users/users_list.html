@@ -1,0 +1,8 @@
+<template name="usersList">
+  <h4>Online Users</h4>
+  <div class="users">
+    {{#each users}}
+      {{> userPill}}
+    {{/each}}
+  </div>
+</template>
