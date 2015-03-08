@@ -1,2 +1,6 @@
+# Generic files
+.DS_Store
+
+# Meteor
 .meteor/local
 .meteor/meteorite
