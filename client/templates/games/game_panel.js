@@ -11,5 +11,7 @@ Template.gamePanel.events({
         Session.set('time', result);
       });
     }, 1000);
+
+    Meteor.call('executeUserAction');
   }
 });

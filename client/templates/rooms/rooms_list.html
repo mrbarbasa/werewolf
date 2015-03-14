@@ -1,0 +1,14 @@
+<template name="roomsList">
+  <div class="container">
+    <div id="messages">
+      <h4>Select a room to join</h4>
+      {{#each rooms}}
+        <div class="room">
+          <div class="room-content">
+            <p><a href="{{pathFor 'roomLobby'}}" class="btn btn-default">{{name}}</a></p>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+</template>

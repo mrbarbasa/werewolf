@@ -1,3 +1,26 @@
+function Room(name, maxPlayers) {
+  this.name = name;
+  this.maxPlayers = maxPlayers || 8;
+  this.playerCount = 0;
+  this.players = [];
+  this.state = 'WAITING'; // WAITING, READY, PLAYING, FINISHED
+  this.type = 'Default';
+
+  console.log('Creating room named ' + this.name + ' for ' + this.maxPlayers + ' players');
+}
+
+if (Rooms.find().count() === 0) {
+  Rooms.insert(new Room('Hello'));
+
+  Rooms.insert(new Room('Most'));
+
+  Rooms.insert(new Room('Cruel'));
+
+  Rooms.insert(new Room('Awesome'));
+
+  Rooms.insert(new Room('World'));
+}
+
 if (Roles.find().count() === 0) {
   Roles.insert({
     name: 'Villager 1'

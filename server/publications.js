@@ -1,5 +1,9 @@
-Meteor.publish('users', function() { // 'userStatus'
+Meteor.publish('users', function() {
   return Meteor.users.find({'status.online': true});
+});
+
+Meteor.publish('rooms', function() {
+  return Rooms.find();
 });
 
 Meteor.publish('roles', function() {
