@@ -29,7 +29,7 @@ Meteor.startup(function() {
   }
 
   function playerJoinRoom(roomName) {
-    var currentPlayer = Players.findOne({name: 'werewolfscarymuch'});
+    var currentPlayer = Players.findOne({name: Meteor.user().username});
     var roomExists = false;
 
     // Possibly change to a for loop in order to break immediately once room is found
@@ -38,24 +38,24 @@ Meteor.startup(function() {
         roomExists = true;
 
         // There's space left in the room for this player to join
-        if (r.playerCount < r.maxPlayers) {
-          Rooms.update(r._id, {$addToSet: {players: currentPlayer}});
-          Rooms.update(r._id, {$inc: {playerCount: 1}});
+        if (r.players.length < r.maxPlayers) {
+          Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
+            if (!err) {
+              // currentPlayer.room = r; // TODO: Set player reference to this room
+              console.log(currentPlayer.name + ' joined room ' + r.name);
+              // TODO: Broadcast a message to the room that player has joined
 
-          // Change room state if necessary
-          if (r.playerCount < r.maxPlayers) {
-            Rooms.update(r._id, {$set: {state: 'WAITING'}}); // Still waiting for players
-          }
-          else {
-            // Change room state to ready if the room is full
-            if (r.state === 'WAITING') {
-              Rooms.update(r._id, {$set: {state: 'READY'}});
+              // Change room state if necessary
+              // Note: r.players.length may not reflect updated value, so add 1 to the check just in case
+              if (r.players.length + 1 >= r.maxPlayers) {
+                // Change room state to ready if the room is full
+                if (r.state === 'WAITING') {
+                  Rooms.update(r._id, {$set: {state: 'READY'}});
+                  console.log('Changed ' + r.name + ' room state to READY');
+                }
+              }
             }
-          }
-
-          // currentPlayer.room = r;
-          console.log(currentPlayer.name + ' joined room ' + r.name);
-          // TODO: Broadcast a message to the room that player has joined
+          });
         }
         else {
           console.log('Player ' + currentPlayer.name + ' attempted to join full room ' + r.name);
