@@ -1,3 +1,9 @@
+function Player(name) {
+  this.name = name;
+  this.room = null;
+  this.isReady = false;
+}
+
 function Room(name, maxPlayers) {
   this.name = name;
   this.maxPlayers = maxPlayers || 8;
@@ -7,6 +13,11 @@ function Room(name, maxPlayers) {
   this.type = 'Default';
 
   console.log('Creating room named ' + this.name + ' for ' + this.maxPlayers + ' players');
+}
+
+if (Players.find().count() === 0) {
+  Players.insert(new Player('villagerpersonthing'));
+  Players.insert(new Player('werewolfscarymuch'));
 }
 
 if (Rooms.find().count() === 0) {

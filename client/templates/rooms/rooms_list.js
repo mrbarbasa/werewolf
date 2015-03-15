@@ -3,3 +3,10 @@ Template.roomsList.helpers({
     return Rooms.find();
   }
 });
+
+Template.roomsList.events({
+  'click a.btn': function() {
+    var roomName = this.name;
+    Meteor.call('playerJoinRoom', roomName);
+  }
+});
