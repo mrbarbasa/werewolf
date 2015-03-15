@@ -1,10 +1,12 @@
 Meteor.startup(function() {
+
   // To call these methods: Meteor.call('getServerTime');
   // These methods can be called remotely by clients
   Meteor.methods({
     getServerTime: getServerTime,
     executeUserAction: executeUserAction,
-    playerJoinRoom: playerJoinRoom
+    playerJoinRoom: playerJoinRoom,
+    playerLeaveRoom: playerLeaveRoom
   });
 
   function getServerTime() {
@@ -29,6 +31,11 @@ Meteor.startup(function() {
   }
 
   function playerJoinRoom(roomName) {
+    if (!Meteor.user()) {
+      console.log('User was not signed in and therefore could not join room ' + roomName);
+      return;
+    }
+
     var currentPlayer = Players.findOne({name: Meteor.user().username});
     var roomExists = false;
 
@@ -68,6 +75,26 @@ Meteor.startup(function() {
       console.log('Room named ' + roomName + ' was not found');
       // TODO: Send a message to the current player that the room was not found
     }
+  }
+
+  function playerLeaveRoom(roomName) {
+    var r = Rooms.findOne({name: roomName});
+    var currentPlayer = Players.findOne({name: Meteor.user().username});
+
+    var index = r.players.indexOf(currentPlayer);
+    Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
+      if (!err) {
+        // currentPlayer.room = null; // TODO: If setting player reference to room
+        console.log(currentPlayer.name + ' left room ' + r.name);
+        // TODO: Broadcast a message to the room that player has left
+
+        // If player leaves the room, set room state to waiting
+        if (r.state === 'READY') {
+          Rooms.update(r._id, {$set: {state: 'WAITING'}});
+          console.log('Changed ' + r.name + ' room state to WAITING');
+        }
+      }
+    });
   }
 
 });
