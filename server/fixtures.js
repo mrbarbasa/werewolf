@@ -1,21 +1,3 @@
-function Player(name) {
-  this.name = name;
-}
-
-function Room(name, maxPlayers) {
-  this.name = name;
-  this.maxPlayers = maxPlayers || 8;
-  this.players = [];
-  this.state = 'WAITING'; // WAITING, READY, PLAYING, FINISHED
-
-  console.log('Created room named ' + this.name + ' for ' + this.maxPlayers + ' players');
-}
-
-if (Players.find().count() === 0) {
-  Players.insert(new Player('villagerpersonthing'));
-  Players.insert(new Player('werewolfscarymuch'));
-}
-
 if (Rooms.find().count() === 0) {
   Rooms.insert(new Room('Hello'));
 

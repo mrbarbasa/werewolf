@@ -73,7 +73,22 @@ Meteor.startup(function() {
       return;
     }
 
-    var currentPlayer = Players.findOne({name: Meteor.user().username});
+    var username = Meteor.user().username;
+    var currentPlayer = Players.findOne({name: username});
+    // If a user is logged in and has no associated player object, create a new player
+    if (!currentPlayer) {
+      Players.insert(new Player(username), function(err, playerId) {
+        if (!err && playerId) {
+          currentPlayer = Players.findOne(playerId);
+          console.log('New player object was created for user ' + username);
+        }
+        else {
+          console.log('Could not create a player object for user ' + username);
+          return;
+        }
+      });
+    }
+
     var roomExists = false;
 
     // Possibly change to a for loop in order to break immediately once room is found
