@@ -1,7 +1,5 @@
 function Player(name) {
   this.name = name;
-  this.room = null;
-  this.isReady = false;
 }
 
 function Room(name, maxPlayers) {
@@ -10,7 +8,7 @@ function Room(name, maxPlayers) {
   this.players = [];
   this.state = 'WAITING'; // WAITING, READY, PLAYING, FINISHED
 
-  console.log('Creating room named ' + this.name + ' for ' + this.maxPlayers + ' players');
+  console.log('Created room named ' + this.name + ' for ' + this.maxPlayers + ' players');
 }
 
 if (Players.find().count() === 0) {

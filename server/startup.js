@@ -9,6 +9,9 @@ Meteor.startup(function() {
     playerLeaveRoom: playerLeaveRoom
   });
 
+  // TODO: Later after testing, decrease the ms interval
+  Meteor.setInterval(updateRooms, 3000);
+
   function getServerTime() {
     var timeNow = (new Date()).toTimeString();
     return timeNow;
@@ -23,11 +26,45 @@ Meteor.startup(function() {
 
   function GlobalStats() {
     this.numPlayersOnline = Meteor.users.find({'status.online': true}).count();
-    this.numPlayersPlaying = 0;
+    this.numPlayersPlaying = 0; // TODO: Implement if needed
     this.numPlayersWaiting = this.numPlayersOnline - this.numPlayersPlaying;
     this.totalRooms = Rooms.find().count();
     this.numRoomsPlaying = Rooms.find({state: 'PLAYING'}).count();
     this.numRoomsWaiting = Rooms.find({state: 'WAITING'}).count();;
+  }
+
+  function updateRooms() {
+    console.log('Updating rooms...');
+
+    Rooms.find().forEach(function(r) {
+      // Delete the room if the game is finished
+      //   or if the room is ready or playing, but empty
+      //   TODO: Later after testing, also delete rooms that are waiting and empty
+      if (r.state === 'FINISHED' || (r.state !== 'WAITING' && r.players.length <= 0)) {
+        Rooms.remove(r._id, function(err) {
+          if (!err) {
+            console.log('Deleted finished/empty room ' + r.name);
+          }
+        });
+      }
+
+      if (r.state !== 'FINISHED' && r.players.length > 0) {
+        // Change room state from ready to playing
+        if (r.state === 'READY') {
+          Rooms.update(r._id, {$set: {state: 'PLAYING'}});
+          console.log('Changed ' + r.name + ' room state to PLAYING');
+        }
+
+        gameLoop(r);
+      }
+    });
+  }
+
+  function gameLoop(r) {
+    // Update room
+    if (r.state === 'PLAYING') {
+      console.log('Room ' + r.name + ' is playing');
+    }
   }
 
   function playerJoinRoom(roomName) {
@@ -48,7 +85,6 @@ Meteor.startup(function() {
         if (r.players.length < r.maxPlayers) {
           Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
             if (!err) {
-              // currentPlayer.room = r; // TODO: Set player reference to this room
               console.log(currentPlayer.name + ' joined room ' + r.name);
               // TODO: Broadcast a message to the room that player has joined
 
@@ -84,7 +120,6 @@ Meteor.startup(function() {
     var index = r.players.indexOf(currentPlayer);
     Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
       if (!err) {
-        // currentPlayer.room = null; // TODO: If setting player reference to room
         console.log(currentPlayer.name + ' left room ' + r.name);
         // TODO: Broadcast a message to the room that player has left
 
