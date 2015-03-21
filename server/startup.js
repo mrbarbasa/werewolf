@@ -6,7 +6,8 @@ Meteor.startup(function() {
     getServerTime: getServerTime,
     executeUserAction: executeUserAction,
     playerJoinRoom: playerJoinRoom,
-    playerLeaveRoom: playerLeaveRoom
+    playerLeaveRoom: playerLeaveRoom,
+    playerKillPlayer: playerKillPlayer
   });
 
   // TODO: May not use interval after all or set a different interval per room
@@ -109,6 +110,34 @@ Meteor.startup(function() {
     var roles = _.shuffle(Roles.find({}, {limit: playerCount}).fetch());
     var player = null;
 
+    // TODO: For werewolf kill testing purposes only
+    // for (var i = 0; i < playerCount; i++) {
+    //   player = r.players[i];
+    //   if (player.name === 'one' || player.name === 'two') {
+    //     Players.update(player._id, {$set: {role: 'WEREWOLF'}}, null, function(err) {
+    //       if (!err) {
+    //         console.log('Successfully assigned role to ' + player.name);
+    //       }
+    //       else {
+    //         console.log('Failed to assign role to player ' + player.name);
+    //         console.log(err.reason);
+    //       }
+    //     });
+    //   }
+    //   else {
+    //     Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
+    //       if (!err) {
+    //         console.log('Successfully assigned role to ' + player.name);
+    //       }
+    //       else {
+    //         console.log('Failed to assign role to player ' + player.name);
+    //         console.log(err.reason);
+    //       }
+    //     });
+    //   }
+    // }
+
+    // TODO: Uncomment later after testing
     for (var i = 0; i < playerCount; i++) {
       player = r.players[i];
       Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
@@ -116,7 +145,7 @@ Meteor.startup(function() {
           console.log('Successfully assigned role to ' + player.name);
         }
         else {
-          console.log('Error updating players');
+          console.log('Failed to assign role to player ' + player.name);
           console.log(err.reason);
         }
       });
@@ -126,12 +155,27 @@ Meteor.startup(function() {
   function gameSetup(r) {
     // Randomly assign roles to players once the game starts
     assignRoles(r);
+    // TODO: Perhaps move these to a gameCleanup method instead
     // Reset room fields to default in case same room is used
     Rooms.update(r._id, {$set: {goodCount: 6}});
     Rooms.update(r._id, {$set: {evilCount: 2}});
     Rooms.update(r._id, {$set: {livingPlayers: 8}});
     Rooms.update(r._id, {$set: {phase: 'NIGHT'}});
     Rooms.update(r._id, {$set: {round: 1}});
+    // Revive all dead players, if any
+    Rooms.findOne({name: r.name}).players.forEach(function(p) {
+      if (!p.isAlive) {
+        Players.update(p._id, {$set: {isAlive: true}}, null, function(err) {
+          if (!err) {
+            console.log('Revived player ' + p.name);
+          }
+          else {
+            console.log('Failed to revive player ' + p.name);
+            console.log(err.reason);
+          }
+        });
+      }
+    });
   }
 
   function gameLoop(r) {
@@ -292,6 +336,21 @@ Meteor.startup(function() {
           Rooms.update(r._id, {$set: {state: 'WAITING'}});
           console.log('Changed ' + r.name + ' room state to WAITING');
         }
+      }
+    });
+  }
+
+  function playerKillPlayer(player) {
+    if (player.killVotes)
+    Players.update(player._id, {$set: {isAlive: false}}, null, function(err) {
+      if (!err) {
+        console.log('Successfully killed player ' + player.name);
+        return true;
+      }
+      else {
+        console.log('Failed to kill player ' + player.name);
+        console.log(err.reason);
+        return false;
       }
     });
   }

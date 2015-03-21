@@ -16,3 +16,12 @@ body {
   margin: 20px 0;
   padding: 5px 15px;
 }
+
+.living-player {
+  color: #6A859E;
+}
+
+.dead-player {
+  color: #9C050D;
+  text-decoration: line-through;
+}

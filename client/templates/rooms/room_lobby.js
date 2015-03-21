@@ -39,6 +39,9 @@ Template.playersList.helpers({
     });
     return players;
   },
+  playerState: function() {
+    return this.isAlive ? 'living-player' : 'dead-player';
+  },
   canSeeOtherRoles: function() {
     // Note: this refers to the currently iterated player
     return Players.findOne({name: Meteor.user().username}).role === 'WEREWOLF' && this.role === 'WEREWOLF';
@@ -50,17 +53,29 @@ Template.playersList.helpers({
     return this.role === 'WEREWOLF' ? 'WEREWOLF' : 'nope';
   },
   showKillButton: function() {
-    return Players.findOne({name: Meteor.user().username}).role === 'WEREWOLF' && this.role !== 'WEREWOLF';
+    var p = Players.findOne({name: Meteor.user().username});
+    return p.isAlive && p.role === 'WEREWOLF' && this.role !== 'WEREWOLF';
   },
   showScanButton: function() {
-    return Players.findOne({name: Meteor.user().username}).role === 'SEER' && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
+    var p = Players.findOne({name: Meteor.user().username});
+    return p.isAlive && p.role === 'SEER' && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
   }
 });
 
 Template.playersList.events({
-  // 'click #kill-player': function() {
-
-  // },
+  'click #kill-player': function() {
+    Meteor.call('playerKillPlayer', this, function(err, killed) {
+      // TODO: Says here it failed but server does indeed kill the player
+      // if (!err) {
+      //   if (killed) {
+      //     console.log('Successfully killed player ' + this.name);
+      //   }
+      //   else {
+      //     console.log('Failed to kill player ' + this.name);
+      //   }
+      // }
+    });
+  },
   'click #scan-player': function() {
     Session.set('scanned_' + this.name, 'SCANNED');
   }

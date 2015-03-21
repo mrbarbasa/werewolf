@@ -28,7 +28,7 @@
 <template name="playersList">
   <div id="players-list" class="">
     {{#each players}}
-      <p>{{name}}
+      <p><span class="{{playerState}}">{{name}}</span>
       {{#if canSeeOtherRoles}}
         <span>({{role}})</span>
       {{/if}}
