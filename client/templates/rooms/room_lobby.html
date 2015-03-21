@@ -1,8 +1,65 @@
 <template name="roomLobby">
   <h4>{{name}}</h4>
   <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default">Leave Room</a>
-  <a href="#" class="btn btn-default">Menu</a>
+  <a href="#" id="game-menu" class="btn btn-default">Menu</a>
+  <p>Current State: {{currentState}}</p>
+  <p>Current Role: {{currentRole}}</p>
   <br>
   <br>
-  {{> usersList}}
+  <!-- {{> usersList}} -->
+  <!-- {{#if isPlaying}} // TODO: Uncomment later -->
+    <div id="role-information">
+      {{> roleVillager}}
+      {{> roleSeer}}
+      {{> roleWerewolf}}
+    </div>
+    <div id="game-panel">
+      {{#if isNightPhase}}
+        <p>NIGHT</p>
+      {{/if}}
+      {{#if isDayPhase}}
+        <p>DAY</p>
+      {{/if}}
+    </div>
+    {{> playersList}}
+  <!-- {{/if}} -->
+</template>
+
+<template name="playersList">
+  <div id="players-list" class="">
+    {{#each players}}
+      <p>{{name}}
+      {{#if canSeeOtherRoles}}
+        <span>({{role}})</span>
+      {{/if}}
+      {{#if scannedBySeer}}
+        <span>({{scannedRole}})</span>
+      {{/if}}
+      {{#if showKillButton}}
+        <button id="kill-player" class="btn btn-default">Kill</button>
+      {{/if}}
+      {{#if showScanButton}}
+        <button id="scan-player" class="btn btn-default">Scan</button>
+      {{/if}}
+      </p>
+    {{/each}}
+  </div>
+</template>
+
+<template name="roleVillager">
+  <div id="role-villager" class="hidden">
+    {{villager}}
+  </div>
+</template>
+
+<template name="roleSeer">
+  <div id="role-seer" class="hidden">
+    {{seer}}
+  </div>
+</template>
+
+<template name="roleWerewolf">
+  <div id="role-werewolf" class="hidden">
+    {{werewolf}}
+  </div>
 </template>
