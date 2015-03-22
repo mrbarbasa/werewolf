@@ -26,6 +26,11 @@
       {{/if}}
       {{#if isDayPhase}}
         <p>DAY</p>
+        {{#if isJudgmentRound}}
+          <button id="vote-yes" class="btn btn-default">Yes</button>
+          <button id="vote-no" class="btn btn-default">No</button>
+          <button id="vote-abstain" class="btn btn-default">Abstain</button>
+        {{/if}}
       {{/if}}
     </div>
     {{> playersList}}

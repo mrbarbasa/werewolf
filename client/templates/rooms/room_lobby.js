@@ -32,6 +32,10 @@ Template.roomLobby.helpers({
   },
   isDayPhase: function() {
     return Rooms.findOne({name: this.name}).phase === 'DAY';
+  },
+  isJudgmentRound: function() {
+    var p = Players.findOne({name: Meteor.user().username});
+    return Rooms.findOne({name: this.name}).round === 'JUDGMENT' && !p.hasVoted && p.isAlive;
   }
 });
 
@@ -51,6 +55,15 @@ Template.roomLobby.events({
     $('#role-villager').toggleClass('hidden');
     $('#role-seer').toggleClass('hidden');
     $('#role-werewolf').toggleClass('hidden');
+  },
+  'click #vote-yes': function() {
+    Meteor.call('voteLynchYes', this);
+  },
+  'click #vote-no': function() {
+    Meteor.call('voteLynchNo', this);
+  },
+  'click #vote-abstain': function() {
+    Meteor.call('voteLynchAbstain', this);
   }
 });
 
@@ -131,7 +144,7 @@ Template.playersList.helpers({
         accusationRound = room.round === 'ACCUSATION';
       }
     }
-    return dayPhase && accusationRound && p._id !== this._id && p.accusedPlayerId !== this._id;
+    return dayPhase && accusationRound && p.isAlive && this.isAlive && p._id !== this._id && p.accusedPlayerId !== this._id;
   }
 });
 
