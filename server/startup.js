@@ -77,6 +77,10 @@ Meteor.startup(function() {
               accusedVotes: p.accusedVotes
             });
           }
+
+          // Reset each player's accusations for the next day's accusation round
+          Players.update(p._id, {$set: {accusedPlayerId: null}});
+          Players.update(p._id, {$set: {accusedVotes: 0}});
         });
 
         // Place player with most votes on trial
