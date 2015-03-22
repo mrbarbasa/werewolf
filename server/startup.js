@@ -9,7 +9,8 @@ Meteor.startup(function() {
     gameCleanup: gameCleanup,
     playerJoinRoom: playerJoinRoom,
     playerLeaveRoom: playerLeaveRoom,
-    playerKillPlayer: playerKillPlayer
+    playerKillPlayer: playerKillPlayer,
+    playerScanPlayer: playerScanPlayer
   });
 
   // TODO: For testing only
@@ -44,6 +45,7 @@ Meteor.startup(function() {
         Rooms.update(r._id, {$set: {message: 'It is night.  The villgers retreat to their homes.'}});
         Rooms.update(r._id, {$set: {phase: 'NIGHT'}});
         Rooms.update(r._id, {$set: {playerKilled: false}});
+        Rooms.update(r._id, {$set: {playerScanned: false}});
       }
       else if (seconds === 11) { // TODO: Set to 31 after testing
         // DAY phase, discussion: 90 seconds, from 31 to 120
@@ -186,6 +188,7 @@ Meteor.startup(function() {
     Rooms.update(r._id, {$set: {message: null}});
     Rooms.update(r._id, {$set: {mode: 'EASY'}});
     Rooms.update(r._id, {$set: {playerKilled: false}});
+    Rooms.update(r._id, {$set: {playerScanned: false}});
 
     // TODO: Remove after testing
     // Player cleanup
@@ -329,6 +332,23 @@ Meteor.startup(function() {
         }
         else {
           console.log('Failed to kill player ' + player.name);
+          console.log(err.reason);
+          return false;
+        }
+      });
+    }
+  }
+
+  function playerScanPlayer(player) {
+    var room = Rooms.findOne(player.roomId);
+    if (room && !room.playerScanned) {
+      Rooms.update(room._id, {$set: {playerScanned: true}}, null, function(err) {
+        if (!err) {
+          console.log('Successfully scanned player ' + player.name);
+          return true;
+        }
+        else {
+          console.log('Failed to scan player ' + player.name);
           console.log(err.reason);
           return false;
         }

@@ -96,10 +96,15 @@ Template.playersList.helpers({
   showScanButton: function() {
     var p = Players.findOne({name: Meteor.user().username});
     var nightPhase = false;
+    var playerScanned = true;
     if (p.roomId) {
-      nightPhase = Rooms.findOne(p.roomId).phase === 'NIGHT';
+      var room = Rooms.findOne(p.roomId);
+      if (room) {
+        nightPhase = room.phase === 'NIGHT';
+        playerScanned = room.playerScanned;
+      }
     }
-    return p.role === 'SEER' && p.isAlive && this.isAlive && nightPhase && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
+    return p.role === 'SEER' && p.isAlive && this.isAlive && nightPhase && !playerScanned && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
   }
 });
 
@@ -108,6 +113,7 @@ Template.playersList.events({
     Meteor.call('playerKillPlayer', this);
   },
   'click #scan-player': function() {
+    Meteor.call('playerScanPlayer', this);
     Session.set('scanned_' + this.name, 'SCANNED');
   }
 });
