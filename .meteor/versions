@@ -45,6 +45,7 @@ mizzao:bootstrap-3@3.3.1_1
 mizzao:timesync@0.3.0
 mizzao:user-status@0.6.4
 mobile-status-bar@1.0.3
+momentjs:moment@2.9.0
 mongo@1.1.0
 npm-bcrypt@0.7.8_1
 observe-sequence@1.0.5

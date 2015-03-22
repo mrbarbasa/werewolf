@@ -5,18 +5,229 @@ Meteor.startup(function() {
   Meteor.methods({
     getServerTime: getServerTime,
     executeUserAction: executeUserAction,
+    startGame: startGame,
+    gameCleanup: gameCleanup,
     playerJoinRoom: playerJoinRoom,
     playerLeaveRoom: playerLeaveRoom,
     playerKillPlayer: playerKillPlayer
   });
 
-  // TODO: May not use interval after all or set a different interval per room
-  // TODO: Later after testing, decrease the ms interval
-  Meteor.setInterval(updateRooms, 3000);
+  // TODO: For testing only
+  Players.update({name: 'one'}, {$set: {isHost: true}});
 
-  function getServerTime() {
-    var timeNow = (new Date()).toTimeString();
-    return timeNow;
+  function getServerTime(r) {
+    var timeStart = Rooms.findOne(r._id).startTime;
+    // .fromNow() // 3 minutes ago
+    // .fromNow(true) // 3 minutes
+    var timeElapsed = moment(timeStart).fromNow(true);
+    return timeElapsed;
+  }
+
+  function startGame(r) {
+    // Change room state from waiting to playing
+    Rooms.update(r._id, {$set: {state: 'PLAYING'}}, null, function(err) {
+      if (!err) {
+        console.log('Changed ' + r.name + ' room state to PLAYING');
+        // Set up game
+        gameSetup(r);
+      }
+    });
+
+    // Game loop
+    var seconds = 0;
+    var currentGame = Meteor.setInterval(function() {
+      seconds++;
+      Rooms.update(r._id, {$set: {seconds: seconds}});
+
+      if (seconds === 1) {
+        // NIGHT phase: 30 seconds, from 1 to 30
+        Rooms.update(r._id, {$set: {message: 'It is night.  The villgers retreat to their homes.'}});
+        Rooms.update(r._id, {$set: {phase: 'NIGHT'}});
+        Rooms.update(r._id, {$set: {playerKilled: false}});
+      }
+      else if (seconds === 11) { // TODO: Set to 31 after testing
+        // DAY phase, discussion: 90 seconds, from 31 to 120
+        Rooms.update(r._id, {$set: {message: 'It is day.  The villagers gather to discuss the events of the night.'}});
+        Rooms.update(r._id, {$set: {phase: 'DAY'}});
+        Rooms.update(r._id, {$set: {playerKilled: false}});
+      }
+      // TODO: Testing only
+      else if (seconds === 20) {
+        seconds = 0;
+      }
+      // else if (seconds === 121) {
+      //   Rooms.update(r._id, {$set: {message: 'The villagers vote for who to place on trial.'}});
+      //   // DAY phase, accusations: 30 seconds, from 121 to 150
+
+      //   // Judgment time for 30 seconds to a minute
+      //   // First player to reach the required number of votes is put on trial
+      //   // If required number of votes is not met, no one goes on trial this day
+      //   // Go to next night phase
+      // }
+      // else if (seconds === 151) {
+      //   Rooms.update(r._id, {$set: {message: 'The villager on trial may speak in his or her defense.'}});
+      //   // DAY phase, defense: 20 seconds, from 151 to 170
+
+      //   // If someone is put on trial, give them 20-30 seconds of self-defense
+      //   // No one else is permitted to speak at this time
+      // }
+      // else if (seconds === 171) {
+      //   Rooms.update(r._id, {$set: {message: "It's judgment time.  Should this fellow be lynched?"}});
+      //   // DAY phase, judgment: 30 seconds, from 171 to 200
+
+      //   // Abstain votes have no weight
+      //   // If votes are majority Yes compared to No,
+      //   //   then player on trial is lynched
+      // }
+      // else if (seconds === 200) {
+      //   // Move on to the next night phase
+      //   seconds = 0;
+      // }
+
+      // TODO: Remove latter portion of check
+      if (r.state === 'FINISHED' || (r.players.length + 2) <= r.maxPlayers) {
+        Meteor.clearInterval(currentGame);
+      }
+    }, 1000);
+  }
+
+  function gameSetup(r) {
+    // Set a start time on the room
+    setGameStartTime(r);
+    // Randomly assign roles to players once the game starts
+    assignRoles(r);
+
+    // TODO: For testing only
+    Players.find().forEach(function(p) {
+      Players.update(p._id, {$set: {roomId: r._id}});
+    });
+
+    console.log('Finished game setup');
+  }
+
+  function setGameStartTime(r) {
+    Rooms.update(r._id, {$set: {startTime: new Date()}});
+  }
+
+  function assignRoles(r) {
+    //   _.shuffle([1, 2, 3, 4, 5, 6]);
+    //   => [4, 1, 6, 3, 5, 2]
+    var playerCount = r.players.length;
+    var roles = _.shuffle(Roles.find({}, {limit: playerCount}).fetch());
+    var player = null;
+
+    // TODO: For werewolf kill testing purposes only
+    for (var i = 0; i < playerCount; i++) {
+      player = r.players[i];
+      if (player.name === 'one') {
+        Players.update(player._id, {$set: {role: 'WEREWOLF'}}, null, function(err) {
+          if (!err) {
+            console.log('Successfully assigned role to ' + player.name);
+          }
+          else {
+            console.log('Failed to assign role to player ' + player.name);
+            console.log(err.reason);
+          }
+        });
+      }
+      else if (player.name === 'two') {
+        Players.update(player._id, {$set: {role: 'SEER'}}, null, function(err) {
+          if (!err) {
+            console.log('Successfully assigned role to ' + player.name);
+          }
+          else {
+            console.log('Failed to assign role to player ' + player.name);
+            console.log(err.reason);
+          }
+        });
+      }
+      else {
+        Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
+          if (!err) {
+            console.log('Successfully assigned role to ' + player.name);
+          }
+          else {
+            console.log('Failed to assign role to player ' + player.name);
+            console.log(err.reason);
+          }
+        });
+      }
+    }
+
+    // TODO: Uncomment later after testing
+    // for (var i = 0; i < playerCount; i++) {
+    //   player = r.players[i];
+    //   Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
+    //     if (!err) {
+    //       console.log('Successfully assigned role to ' + player.name);
+    //     }
+    //     else {
+    //       console.log('Failed to assign role to player ' + player.name);
+    //       console.log(err.reason);
+    //     }
+    //   });
+    // }
+  }
+
+  function gameCleanup(r) {
+    // Room cleanup
+    Rooms.update(r._id, {$set: {state: 'WAITING'}}, null, function(err) {
+      if (!err) {
+        console.log('Changed ' + r.name + ' room state to WAITING');
+      }
+    });
+    Rooms.update(r._id, {$set: {goodCount: 6}});
+    Rooms.update(r._id, {$set: {evilCount: 2}});
+    Rooms.update(r._id, {$set: {livingPlayers: 8}});
+    Rooms.update(r._id, {$set: {phase: null}});
+    Rooms.update(r._id, {$set: {round: 1}});
+    Rooms.update(r._id, {$set: {startTime: null}});
+    Rooms.update(r._id, {$set: {seconds: 0}});
+    Rooms.update(r._id, {$set: {message: null}});
+    Rooms.update(r._id, {$set: {mode: 'EASY'}});
+    Rooms.update(r._id, {$set: {playerKilled: false}});
+
+    // TODO: Remove after testing
+    // Player cleanup
+    Players.find().forEach(function(p) {
+      Players.update(p._id, {$set: {role: null}});
+      Players.update(p._id, {$set: {isAlive: true}});
+      Players.update(p._id, {$set: {roomId: null}});
+    });
+
+    // TODO: Use this instead, after testing
+    // Player cleanup
+    // Rooms.findOne({name: r.name}).players.forEach(function(p) {
+    //   Players.update(p._id, {$set: {role: null}});
+    //   Players.update(p._id, {$set: {isAlive: true}});
+    //   Players.update(p._id, {$set: {isHost: false}}); // TODO: Maybe not until leaving room
+    //   Players.update(p._id, {$set: {roomId: null}}); // TODO: Maybe not until leaving room
+    // });
+
+    //--- TODO: For testing purposes only
+    // Hello room cleanup
+    var testRoom = Rooms.findOne({name: 'Hello'});
+    Rooms.update(testRoom._id, {$set: {players: []}});
+    var playerNames = ['three', 'four', 'five', 'six', 'seven', 'eight'];
+    var currentPlayer;
+    for (var i = 0; i < playerNames.length; i++) {
+      currentPlayer = Players.findOne({name: playerNames[i]});
+      Rooms.update(testRoom._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
+        if (!err) {
+          console.log(currentPlayer.name + ' joined room ' + testRoom.name);
+        }
+      });
+    }
+
+    // All rooms cleanup
+    Rooms.find().forEach(function(room) {
+      if (room.name !== 'Hello') {
+        Rooms.update(room._id, {$set: {players: []}});
+      }
+    });
+    //--- END: For testing purposes only
+
+    console.log('Finished game cleanup');
   }
 
   function executeUserAction() {
@@ -33,230 +244,6 @@ Meteor.startup(function() {
     this.totalRooms = Rooms.find().count();
     this.numRoomsPlaying = Rooms.find({state: 'PLAYING'}).count();
     this.numRoomsWaiting = Rooms.find({state: 'WAITING'}).count();;
-  }
-
-  function updateRooms() {
-    console.log('Updating rooms...');
-
-    Rooms.find().forEach(function(r) {
-      // Delete the room if the game is finished
-      //   or if the room is ready or playing, but empty
-      //   TODO: Later after testing, also delete rooms that are waiting and empty
-      if (r.state === 'FINISHED' || (r.state !== 'WAITING' && r.players.length <= 0)) {
-        // TODO: Uncomment later
-        // Rooms.remove(r._id, function(err) {
-        //   if (!err) {
-        //     console.log('Deleted finished/empty room ' + r.name);
-        //   }
-        // });
-      }
-
-      // TODO: For testing purposes only
-      if (r.players.length === 0 && r.state === 'PLAYING') {
-        // Change room state from playing to waiting
-        Rooms.update(r._id, {$set: {state: 'WAITING'}}, null, function(err) {
-          if (!err) {
-            console.log('Changed ' + r.name + ' room state to WAITING');
-            // Meteor.clearInterval(test); // This works, just set interval to var test
-          }
-        });
-      }
-      if (r.name === 'Hello' && r.players.length <= 6 && r.state === 'PLAYING') {
-        // Change room state from playing to waiting
-        Rooms.update(r._id, {$set: {state: 'WAITING'}}, null, function(err) {
-          if (!err) {
-            console.log('Changed ' + r.name + ' room state to WAITING');
-            // Meteor.clearInterval(test); // This works, just set interval to var test
-          }
-        });
-
-        // Room cleanup
-        var testRoom = Rooms.findOne({name: 'Hello'});
-        Rooms.update(testRoom._id, {$set: {players: []}});
-        var playerNames = ['three', 'four', 'five', 'six', 'seven', 'eight'];
-        var currentPlayer;
-        for (var i = 0; i < playerNames.length; i++) {
-          currentPlayer = Players.findOne({name: playerNames[i]});
-          Rooms.update(testRoom._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
-            if (!err) {
-              console.log(currentPlayer.name + ' joined room ' + testRoom.name);
-            }
-          });
-        }
-      }
-      // END: For testing purposes only
-
-      if (r.state !== 'FINISHED' && r.players.length > 0) {
-        // Change room state from ready to playing
-        if (r.state === 'READY') {
-          Rooms.update(r._id, {$set: {state: 'PLAYING'}}, null, function(err) {
-            if (!err) {
-              console.log('Changed ' + r.name + ' room state to PLAYING');
-              // Set up game
-              gameSetup(r);
-            }
-          });
-        }
-
-        gameLoop(r);
-      }
-    });
-  }
-
-  function assignRoles(r) {
-    //   _.shuffle([1, 2, 3, 4, 5, 6]);
-    //   => [4, 1, 6, 3, 5, 2]
-    var playerCount = r.players.length;
-    var roles = _.shuffle(Roles.find({}, {limit: playerCount}).fetch());
-    var player = null;
-
-    // TODO: For werewolf kill testing purposes only
-    // for (var i = 0; i < playerCount; i++) {
-    //   player = r.players[i];
-    //   if (player.name === 'one' || player.name === 'two') {
-    //     Players.update(player._id, {$set: {role: 'WEREWOLF'}}, null, function(err) {
-    //       if (!err) {
-    //         console.log('Successfully assigned role to ' + player.name);
-    //       }
-    //       else {
-    //         console.log('Failed to assign role to player ' + player.name);
-    //         console.log(err.reason);
-    //       }
-    //     });
-    //   }
-    //   else {
-    //     Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
-    //       if (!err) {
-    //         console.log('Successfully assigned role to ' + player.name);
-    //       }
-    //       else {
-    //         console.log('Failed to assign role to player ' + player.name);
-    //         console.log(err.reason);
-    //       }
-    //     });
-    //   }
-    // }
-
-    // TODO: Uncomment later after testing
-    for (var i = 0; i < playerCount; i++) {
-      player = r.players[i];
-      Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
-        if (!err) {
-          console.log('Successfully assigned role to ' + player.name);
-        }
-        else {
-          console.log('Failed to assign role to player ' + player.name);
-          console.log(err.reason);
-        }
-      });
-    }
-  }
-
-  function gameSetup(r) {
-    // Randomly assign roles to players once the game starts
-    assignRoles(r);
-    // TODO: Perhaps move these to a gameCleanup method instead
-    // Reset room fields to default in case same room is used
-    Rooms.update(r._id, {$set: {goodCount: 6}});
-    Rooms.update(r._id, {$set: {evilCount: 2}});
-    Rooms.update(r._id, {$set: {livingPlayers: 8}});
-    Rooms.update(r._id, {$set: {phase: 'NIGHT'}});
-    Rooms.update(r._id, {$set: {round: 1}});
-    // Revive all dead players, if any
-    Rooms.findOne({name: r.name}).players.forEach(function(p) {
-      if (!p.isAlive) {
-        Players.update(p._id, {$set: {isAlive: true}}, null, function(err) {
-          if (!err) {
-            console.log('Revived player ' + p.name);
-          }
-          else {
-            console.log('Failed to revive player ' + p.name);
-            console.log(err.reason);
-          }
-        });
-      }
-    });
-  }
-
-  function gameLoop(r) {
-    // Update room
-    if (r.state === 'PLAYING') {
-      console.log('[' + r.name + '] Now playing');
-
-      runPhase(r, 'NIGHT');
-      // Check if the win conditions have been met
-      if (!gameOver(r)) {
-        runPhase(r, 'DAY');
-
-        // Check again if the win conditions have been met
-        if (!gameOver(r)) {
-          Rooms.update(r._id, {$set: {round: r.round + 1}}); // Increment the current round by 1
-        }
-      }
-    }
-  }
-
-  function runPhase(r, phase) {
-    if (phase === 'NIGHT') {
-      if (r.phase !== 'NIGHT') {
-        Rooms.update(r._id, {$set: {phase: 'NIGHT'}});
-      }
-      console.log('[' + r.name + '] Running NIGHT phase, round ' + r.round);
-      // TODO: Broadcast
-    }
-    else if (phase === 'DAY') {
-      if (r.phase !== 'DAY') {
-        Rooms.update(r._id, {$set: {phase: 'DAY'}});
-      }
-      console.log('[' + r.name + '] Running DAY phase, round ' + r.round);
-      // TODO: Broadcast
-
-      // Announce to all players who is dead
-      //   or if someone has been saved (do not reveal who was saved)
-
-      // If a player is dead, disable his ability
-      //   to chat with living players
-      // Dead players can only chat with other dead players
-
-      // If easy mode, their identity is revealed,
-      //   else if hard mode, their identity remains hidden
-
-      // Allow 1-2 minutes of discussion
-
-      // Judgment time for 30 seconds to a minute
-      // First player to reach the required number of votes is put on trial
-      // If required number of votes is not met, no one goes on trial this day
-      // Go to next night phase
-
-      // If someone is put on trial, give them 20-30 seconds of self-defense
-      // No one else is permitted to speak at this time
-
-      // Voting time for all players, 30 seconds or 1 minute
-      // Abstain votes have no weight
-      // If votes are majority Yes compared to No,
-      //   then player on trial is lynched
-      // Go to next night phase
-    }
-  }
-
-  function gameOver(r) {
-    if (r.evilCount >= r.goodCount) {
-      Rooms.update(r._id, {$set: {state: 'FINISHED'}});
-      console.log('Changed ' + r.name + ' room state to FINISHED');
-      console.log('Evil has won in room ' + r.name);
-      // TODO: Broadcast message to room
-      return true;
-    }
-    else if (r.evilCount === 0) {
-      Rooms.update(r._id, {$set: {state: 'FINISHED'}});
-      console.log('Changed ' + r.name + ' room state to FINISHED');
-      console.log('Good has won in room ' + r.name);
-      // TODO: Broadcast message to room
-      return true;
-    }
-    else {
-      return false;
-    }
   }
 
   function playerJoinRoom(roomName) {
@@ -284,6 +271,10 @@ Meteor.startup(function() {
 
     var roomExists = false;
 
+    // Update player room reference
+    var room = Rooms.findOne({name: roomName});
+    Players.update(currentPlayer._id, {$set: {roomId: room._id}});
+
     // Possibly change to a for loop in order to break immediately once room is found
     Rooms.find().forEach(function(r) {
       if (r.name === roomName) {
@@ -295,16 +286,6 @@ Meteor.startup(function() {
             if (!err) {
               console.log(currentPlayer.name + ' joined room ' + r.name);
               // TODO: Broadcast a message to the room that player has joined
-
-              // Change room state if necessary
-              // Note: r.players.length may not reflect updated value, so add 1 to the check just in case
-              if (r.players.length + 1 >= r.maxPlayers) {
-                // Change room state to ready if the room is full
-                if (r.state === 'WAITING') {
-                  Rooms.update(r._id, {$set: {state: 'READY'}});
-                  console.log('Changed ' + r.name + ' room state to READY');
-                }
-              }
             }
           });
         }
@@ -325,34 +306,34 @@ Meteor.startup(function() {
     var r = Rooms.findOne({name: roomName});
     var currentPlayer = Players.findOne({name: Meteor.user().username});
 
-    var index = r.players.indexOf(currentPlayer);
+    // Update player room reference
+    Players.update(currentPlayer._id, {$set: {roomId: null}});
+
+    var index = r.players.indexOf(currentPlayer); // TODO: This doesn't appear to be working properly
     Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
       if (!err) {
         console.log(currentPlayer.name + ' left room ' + r.name);
         // TODO: Broadcast a message to the room that player has left
-
-        // If player leaves the room, set room state to waiting
-        if (r.state === 'READY') {
-          Rooms.update(r._id, {$set: {state: 'WAITING'}});
-          console.log('Changed ' + r.name + ' room state to WAITING');
-        }
       }
     });
   }
 
   function playerKillPlayer(player) {
-    if (player.killVotes)
-    Players.update(player._id, {$set: {isAlive: false}}, null, function(err) {
-      if (!err) {
-        console.log('Successfully killed player ' + player.name);
-        return true;
-      }
-      else {
-        console.log('Failed to kill player ' + player.name);
-        console.log(err.reason);
-        return false;
-      }
-    });
+    var room = Rooms.findOne(player.roomId);
+    if (room && !room.playerKilled) {
+      Players.update(player._id, {$set: {isAlive: false}}, null, function(err) {
+        if (!err) {
+          Rooms.update(room._id, {$set: {playerKilled: true}});
+          console.log('Successfully killed player ' + player.name);
+          return true;
+        }
+        else {
+          console.log('Failed to kill player ' + player.name);
+          console.log(err.reason);
+          return false;
+        }
+      });
+    }
   }
 
 });

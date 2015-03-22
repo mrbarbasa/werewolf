@@ -2,8 +2,14 @@
   <h4>{{name}}</h4>
   <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default">Leave Room</a>
   <a href="#" id="game-menu" class="btn btn-default">Menu</a>
+  <a href="#" id="game-cleanup" class="btn btn-default">Game Reset</a>
   <p>Current State: {{currentState}}</p>
   <p>Current Role: {{currentRole}}</p>
+  <p>Current Time: {{currentTime}}</p>
+  <p>Server Message: {{serverMessage}}</p>
+  {{#if canStartGame}}
+    <p><button type="button" id="start-game" class="btn btn-default">Start Game</button></p>
+  {{/if}}
   <br>
   <br>
   <!-- {{> usersList}} -->

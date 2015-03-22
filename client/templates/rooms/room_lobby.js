@@ -6,6 +6,15 @@ Template.roomLobby.helpers({
   currentRole: function() {
     return Players.findOne({name: Meteor.user().username}).role;
   },
+  currentTime: function() {
+    return Rooms.findOne(this._id).seconds;
+  },
+  serverMessage: function() {
+    return Rooms.findOne(this._id).message;
+  },
+  canStartGame: function() {
+    return Players.findOne({name: Meteor.user().username}).isHost && this.state === 'WAITING' && this.players.length === this.maxPlayers;
+  },
   // TODO: Commented out for now
   // isPlaying: function() {
   //   return Rooms.findOne({name: this.name}).state === 'PLAYING';
@@ -19,6 +28,14 @@ Template.roomLobby.helpers({
 });
 
 Template.roomLobby.events({
+  'click #start-game': function() {
+    var room = this;
+    Meteor.call('startGame', room);
+  },
+  // TODO: For testing only
+  'click #game-cleanup': function() {
+    Meteor.call('gameCleanup', this);
+  },
   'click #leave-room': function() {
     Meteor.call('playerLeaveRoom', this.name);
   },
@@ -43,38 +60,52 @@ Template.playersList.helpers({
     return this.isAlive ? 'living-player' : 'dead-player';
   },
   canSeeOtherRoles: function() {
+    var p = Players.findOne({name: Meteor.user().username});
     // Note: this refers to the currently iterated player
-    return Players.findOne({name: Meteor.user().username}).role === 'WEREWOLF' && this.role === 'WEREWOLF';
+    var werewolvesUnite = p.role === 'WEREWOLF' && this.role === 'WEREWOLF';
+    var easyMode = false;
+    if (p.roomId) {
+      easyMode = Rooms.findOne(p.roomId).mode === 'EASY';
+    }
+    return (!this.isAlive && easyMode) || werewolvesUnite;
   },
   scannedBySeer: function() {
-    return Session.get('scanned_' + this.name) === 'SCANNED';
+    var easyMode = false;
+    if (this.roomId) {
+      easyMode = Rooms.findOne(this.roomId).mode === 'EASY';
+    }
+    // If easy mode, player has to be alive, else if hard mode, show scanned info regardless
+    return ((this.isAlive && easyMode) || !easyMode) && Session.get('scanned_' + this.name) === 'SCANNED';
   },
   scannedRole: function() {
     return this.role === 'WEREWOLF' ? 'WEREWOLF' : 'nope';
   },
   showKillButton: function() {
     var p = Players.findOne({name: Meteor.user().username});
-    return p.isAlive && p.role === 'WEREWOLF' && this.role !== 'WEREWOLF';
+    var nightPhase = false;
+    var playerKilled = true;
+    if (p.roomId) {
+      var room = Rooms.findOne(p.roomId);
+      if (room) {
+        nightPhase = room.phase === 'NIGHT';
+        playerKilled = room.playerKilled;
+      }
+    }
+    return p.role === 'WEREWOLF' && p.isAlive && this.isAlive && nightPhase && !playerKilled && this.role !== 'WEREWOLF';
   },
   showScanButton: function() {
     var p = Players.findOne({name: Meteor.user().username});
-    return p.isAlive && p.role === 'SEER' && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
+    var nightPhase = false;
+    if (p.roomId) {
+      nightPhase = Rooms.findOne(p.roomId).phase === 'NIGHT';
+    }
+    return p.role === 'SEER' && p.isAlive && this.isAlive && nightPhase && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
   }
 });
 
 Template.playersList.events({
   'click #kill-player': function() {
-    Meteor.call('playerKillPlayer', this, function(err, killed) {
-      // TODO: Says here it failed but server does indeed kill the player
-      // if (!err) {
-      //   if (killed) {
-      //     console.log('Successfully killed player ' + this.name);
-      //   }
-      //   else {
-      //     console.log('Failed to kill player ' + this.name);
-      //   }
-      // }
-    });
+    Meteor.call('playerKillPlayer', this);
   },
   'click #scan-player': function() {
     Session.set('scanned_' + this.name, 'SCANNED');
