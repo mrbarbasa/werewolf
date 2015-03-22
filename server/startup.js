@@ -216,6 +216,7 @@ Meteor.startup(function() {
     Rooms.update(r._id, {$set: {playerKilled: false}});
     Rooms.update(r._id, {$set: {playerScanned: false}});
     Rooms.update(r._id, {$set: {minAccusedVotes: 2}});
+    Rooms.update(r._id, {$set: {playerAccusedId: null}});
 
     // TODO: Remove after testing
     // Player cleanup
