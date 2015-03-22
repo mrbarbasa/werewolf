@@ -43,11 +43,12 @@ Meteor.startup(function() {
 
       if (seconds === 1) {
         // NIGHT phase: 30 seconds, from 1 to 30
-        Rooms.update(r._id, {$set: {message: 'It is night.  The villgers retreat to their homes.'}});
+        Rooms.update(r._id, {$set: {message: 'It is night.  The villagers retreat to their homes.'}});
         Rooms.update(r._id, {$set: {phase: 'NIGHT'}});
         Rooms.update(r._id, {$set: {round: 'DANGER'}});
         Rooms.update(r._id, {$set: {playerKilled: false}});
         Rooms.update(r._id, {$set: {playerScanned: false}});
+        Rooms.update(r._id, {$set: {playerAccusedId: null}});
       }
       // else if (seconds === 11) { // TODO: Set to 31 after testing
       //   // DAY phase, discussion: 90 seconds, from 31 to 120
@@ -57,45 +58,58 @@ Meteor.startup(function() {
       //   Rooms.update(r._id, {$set: {playerKilled: false}});
       // }
       else if (seconds === 11) { // TODO: Set to 121 after testing
-        // DAY phase, accusations: 30 seconds, from 121 to 150
+        // DAY phase, accusation: 30 seconds, from 121 to 150
         Rooms.update(r._id, {$set: {message: 'The villagers vote for who to place on trial.'}});
         Rooms.update(r._id, {$set: {phase: 'DAY'}}); // TODO: Remove this later
         Rooms.update(r._id, {$set: {round: 'ACCUSATION'}});
-
-        // First player to reach the required number of votes is placed on trial
-
-
-        // If required number of votes is not met, no one goes on trial for this day
-        // if () {
-        //   // Move on to the next night phase
-        //   seconds = 0;
-        // }
       }
-      // TODO: Testing only
-      else if (seconds === 25) {
-        seconds = 0;
-      }
-      // else if (seconds === 151) {
-      //   Rooms.update(r._id, {$set: {message: 'The villager on trial may speak in his or her defense.'}});
-      //   // DAY phase, defense: 20 seconds, from 151 to 170
-      //   Rooms.update(r._id, {$set: {round: 'DEFENSE'}});
+      else if (seconds === 16) { // TODO: Set to 151 after testing
+        // DAY phase, defense: 20 seconds, from 151 to 170
 
-      //   // If someone is put on trial, give them 20-30 seconds of self-defense
-      //   // No one else is permitted to speak at this time
-      // }
-      // else if (seconds === 171) {
-      //   Rooms.update(r._id, {$set: {message: "It's judgment time.  Should this fellow be lynched?"}});
+        // Gather all players eligible for trial
+        var p;
+        var playersAccused = [];
+        r.players.forEach(function(player) {
+          p = Players.findOne(player._id);
+          if (p.accusedVotes >= r.minAccusedVotes) {
+            playersAccused.push({
+              _id: p._id,
+              accusedVotes: p.accusedVotes
+            });
+          }
+        });
+
+        // Place player with most votes on trial
+        // If there is a tie, player with smallest array index is returned
+        var playerAccused = _.max(playersAccused, function(player) {
+          return player.accusedVotes;
+        });
+
+        if (playerAccused !== -Infinity) {
+          Rooms.update(r._id, {$set: {message: 'The villager on trial may speak in his or her defense.'}});
+          Rooms.update(r._id, {$set: {round: 'DEFENSE'}});
+          Rooms.update(r._id, {$set: {playerAccusedId: playerAccused._id}});
+        }
+        else { // Required number of votes is not met, so no one goes on trial for this day
+          // DAY phase, dusk: 5 seconds, from 151 to 155
+          Rooms.update(r._id, {$set: {message: 'No one goes on trial.  Dusk has fallen.'}});
+          Rooms.update(r._id, {$set: {round: 'DUSK'}});
+        }
+      }
+      // else if (seconds === 171 && Rooms.findOne(r._id).round === 'DEFENSE') { // TODO: Set to 171 after testing
       //   // DAY phase, judgment: 30 seconds, from 171 to 200
+      //   Rooms.update(r._id, {$set: {message: "It's judgment time.  Should this fellow be lynched?"}});
       //   Rooms.update(r._id, {$set: {round: 'JUDGMENT'}});
 
       //   // Abstain votes have no weight
       //   // If votes are majority Yes compared to No,
       //   //   then player on trial is lynched
       // }
-      // else if (seconds === 200) {
-      //   // Move on to the next night phase
-      //   seconds = 0;
-      // }
+      else if (seconds === 30 || (seconds === 20 && Rooms.findOne(r._id).round === 'DUSK')) { // TODO: For testing only
+      // else if (seconds === 200 || (seconds === 155 && Rooms.findOne(r._id).round === 'DUSK')) { // TODO: Use this after testing
+        // Move on to the next night phase
+        seconds = 0;
+      }
 
       // TODO: Remove latter portion of check
       if (r.state === 'FINISHED' || (r.players.length + 2) <= r.maxPlayers) {
@@ -130,7 +144,7 @@ Meteor.startup(function() {
     var roles = _.shuffle(Roles.find({}, {limit: playerCount}).fetch());
     var player = null;
 
-    // TODO: For werewolf kill testing purposes only
+    // TODO: For werewolf kill and seer scan testing purposes only
     for (var i = 0; i < playerCount; i++) {
       player = r.players[i];
       if (player.name === 'one') {
@@ -201,6 +215,7 @@ Meteor.startup(function() {
     Rooms.update(r._id, {$set: {mode: 'EASY'}});
     Rooms.update(r._id, {$set: {playerKilled: false}});
     Rooms.update(r._id, {$set: {playerScanned: false}});
+    Rooms.update(r._id, {$set: {minAccusedVotes: 2}});
 
     // TODO: Remove after testing
     // Player cleanup
@@ -396,9 +411,6 @@ Meteor.startup(function() {
         if (!err) {
           Players.update(currentPlayer._id, {$set: {accusedPlayerId: player._id}});
           console.log('Successfully accused player ' + player.name);
-
-          // TODO: Check if playerAccusedVotes is enough to send player to trial
-
           return true;
         }
         else {
@@ -407,8 +419,6 @@ Meteor.startup(function() {
           return false;
         }
       });
-
-      console.log('Accused votes = ' + player.accusedVotes);
     }
   }
 

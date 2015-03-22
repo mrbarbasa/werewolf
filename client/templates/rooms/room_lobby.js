@@ -12,6 +12,14 @@ Template.roomLobby.helpers({
   serverMessage: function() {
     return Rooms.findOne(this._id).message;
   },
+  playerAccused: function() {
+    var accused = '';
+    var p = Players.findOne(Rooms.findOne(this._id).playerAccusedId);
+    if (p) {
+      accused = p.name;
+    }
+    return accused;
+  },
   canStartGame: function() {
     return Players.findOne({name: Meteor.user().username}).isHost && this.state === 'WAITING' && this.players.length === this.maxPlayers;
   },
