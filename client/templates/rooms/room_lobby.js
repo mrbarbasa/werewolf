@@ -105,6 +105,25 @@ Template.playersList.helpers({
       }
     }
     return p.role === 'SEER' && p.isAlive && this.isAlive && nightPhase && !playerScanned && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
+  },
+  isAccused: function() {
+    return this.accusedVotes > 0;
+  },
+  accusedVotes: function() {
+    return this.accusedVotes;
+  },
+  showAccuseButton: function() {
+    var p = Players.findOne({name: Meteor.user().username});
+    var dayPhase = false;
+    var accusationRound = true;
+    if (this.roomId) {
+      var room = Rooms.findOne(this.roomId);
+      if (room) {
+        dayPhase = room.phase === 'DAY';
+        accusationRound = room.round === 'ACCUSATION';
+      }
+    }
+    return dayPhase && accusationRound && p._id !== this._id && p.accusedPlayerId !== this._id;
   }
 });
 
@@ -115,6 +134,9 @@ Template.playersList.events({
   'click #scan-player': function() {
     Meteor.call('playerScanPlayer', this);
     Session.set('scanned_' + this.name, 'SCANNED');
+  },
+  'click #accuse-player': function() {
+    Meteor.call('playerAccusePlayer', this);
   }
 });
 

@@ -10,7 +10,8 @@ Meteor.startup(function() {
     playerJoinRoom: playerJoinRoom,
     playerLeaveRoom: playerLeaveRoom,
     playerKillPlayer: playerKillPlayer,
-    playerScanPlayer: playerScanPlayer
+    playerScanPlayer: playerScanPlayer,
+    playerAccusePlayer: playerAccusePlayer
   });
 
   // TODO: For testing only
@@ -44,31 +45,40 @@ Meteor.startup(function() {
         // NIGHT phase: 30 seconds, from 1 to 30
         Rooms.update(r._id, {$set: {message: 'It is night.  The villgers retreat to their homes.'}});
         Rooms.update(r._id, {$set: {phase: 'NIGHT'}});
+        Rooms.update(r._id, {$set: {round: 'DANGER'}});
         Rooms.update(r._id, {$set: {playerKilled: false}});
         Rooms.update(r._id, {$set: {playerScanned: false}});
       }
-      else if (seconds === 11) { // TODO: Set to 31 after testing
-        // DAY phase, discussion: 90 seconds, from 31 to 120
-        Rooms.update(r._id, {$set: {message: 'It is day.  The villagers gather to discuss the events of the night.'}});
-        Rooms.update(r._id, {$set: {phase: 'DAY'}});
-        Rooms.update(r._id, {$set: {playerKilled: false}});
+      // else if (seconds === 11) { // TODO: Set to 31 after testing
+      //   // DAY phase, discussion: 90 seconds, from 31 to 120
+      //   Rooms.update(r._id, {$set: {message: 'It is day.  The villagers gather to discuss the events of the night.'}});
+      //   Rooms.update(r._id, {$set: {phase: 'DAY'}});
+      //   Rooms.update(r._id, {$set: {round: 'DISCUSSION'}});
+      //   Rooms.update(r._id, {$set: {playerKilled: false}});
+      // }
+      else if (seconds === 11) { // TODO: Set to 121 after testing
+        // DAY phase, accusations: 30 seconds, from 121 to 150
+        Rooms.update(r._id, {$set: {message: 'The villagers vote for who to place on trial.'}});
+        Rooms.update(r._id, {$set: {phase: 'DAY'}}); // TODO: Remove this later
+        Rooms.update(r._id, {$set: {round: 'ACCUSATION'}});
+
+        // First player to reach the required number of votes is placed on trial
+
+
+        // If required number of votes is not met, no one goes on trial for this day
+        // if () {
+        //   // Move on to the next night phase
+        //   seconds = 0;
+        // }
       }
       // TODO: Testing only
-      else if (seconds === 20) {
+      else if (seconds === 25) {
         seconds = 0;
       }
-      // else if (seconds === 121) {
-      //   Rooms.update(r._id, {$set: {message: 'The villagers vote for who to place on trial.'}});
-      //   // DAY phase, accusations: 30 seconds, from 121 to 150
-
-      //   // Judgment time for 30 seconds to a minute
-      //   // First player to reach the required number of votes is put on trial
-      //   // If required number of votes is not met, no one goes on trial this day
-      //   // Go to next night phase
-      // }
       // else if (seconds === 151) {
       //   Rooms.update(r._id, {$set: {message: 'The villager on trial may speak in his or her defense.'}});
       //   // DAY phase, defense: 20 seconds, from 151 to 170
+      //   Rooms.update(r._id, {$set: {round: 'DEFENSE'}});
 
       //   // If someone is put on trial, give them 20-30 seconds of self-defense
       //   // No one else is permitted to speak at this time
@@ -76,6 +86,7 @@ Meteor.startup(function() {
       // else if (seconds === 171) {
       //   Rooms.update(r._id, {$set: {message: "It's judgment time.  Should this fellow be lynched?"}});
       //   // DAY phase, judgment: 30 seconds, from 171 to 200
+      //   Rooms.update(r._id, {$set: {round: 'JUDGMENT'}});
 
       //   // Abstain votes have no weight
       //   // If votes are majority Yes compared to No,
@@ -89,6 +100,7 @@ Meteor.startup(function() {
       // TODO: Remove latter portion of check
       if (r.state === 'FINISHED' || (r.players.length + 2) <= r.maxPlayers) {
         Meteor.clearInterval(currentGame);
+        console.log('Game finished');
       }
     }, 1000);
   }
@@ -182,7 +194,7 @@ Meteor.startup(function() {
     Rooms.update(r._id, {$set: {evilCount: 2}});
     Rooms.update(r._id, {$set: {livingPlayers: 8}});
     Rooms.update(r._id, {$set: {phase: null}});
-    Rooms.update(r._id, {$set: {round: 1}});
+    Rooms.update(r._id, {$set: {round: null}});
     Rooms.update(r._id, {$set: {startTime: null}});
     Rooms.update(r._id, {$set: {seconds: 0}});
     Rooms.update(r._id, {$set: {message: null}});
@@ -196,6 +208,8 @@ Meteor.startup(function() {
       Players.update(p._id, {$set: {role: null}});
       Players.update(p._id, {$set: {isAlive: true}});
       Players.update(p._id, {$set: {roomId: null}});
+      Players.update(p._id, {$set: {accusedPlayerId: null}});
+      Players.update(p._id, {$set: {accusedVotes: 0}});
     });
 
     // TODO: Use this instead, after testing
@@ -313,12 +327,14 @@ Meteor.startup(function() {
     Players.update(currentPlayer._id, {$set: {roomId: null}});
 
     var index = r.players.indexOf(currentPlayer); // TODO: This doesn't appear to be working properly
-    Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
-      if (!err) {
-        console.log(currentPlayer.name + ' left room ' + r.name);
-        // TODO: Broadcast a message to the room that player has left
-      }
-    });
+    if (index > -1) {
+      Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
+        if (!err) {
+          console.log(currentPlayer.name + ' left room ' + r.name);
+          // TODO: Broadcast a message to the room that player has left
+        }
+      });
+    }
   }
 
   function playerKillPlayer(player) {
@@ -353,6 +369,46 @@ Meteor.startup(function() {
           return false;
         }
       });
+    }
+  }
+
+  function playerAccusePlayer(player) {
+    var room = Rooms.findOne(player.roomId);
+    var currentPlayer = Players.findOne({name: Meteor.user().username});
+
+    if (room) {
+      // This shouldn't happen due to client-side logic, but in case
+      //   current player tries to accuse the same player, return immediately
+      if (currentPlayer.accusedPlayerId && currentPlayer.accusedPlayerId === player._id) {
+        return;
+      }
+
+      // If current player already accused someone, remove their vote
+      //   from that player before assigning their vote to the new player
+      if (currentPlayer.accusedPlayerId) {
+        var prevAccusedPlayer = Players.findOne(currentPlayer.accusedPlayerId);
+        Players.update(prevAccusedPlayer._id, {$set: {accusedVotes: prevAccusedPlayer.accusedVotes - 1}});
+      }
+
+      // Assign the current player's vote to the new player
+      var playerAccusedVotes = player.accusedVotes + 1;
+      Players.update(player._id, {$set: {accusedVotes: playerAccusedVotes}}, null, function(err) {
+        if (!err) {
+          Players.update(currentPlayer._id, {$set: {accusedPlayerId: player._id}});
+          console.log('Successfully accused player ' + player.name);
+
+          // TODO: Check if playerAccusedVotes is enough to send player to trial
+
+          return true;
+        }
+        else {
+          console.log('Failed to accuse player ' + player.name);
+          console.log(err.reason);
+          return false;
+        }
+      });
+
+      console.log('Accused votes = ' + player.accusedVotes);
     }
   }
 
