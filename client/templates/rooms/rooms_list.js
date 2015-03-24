@@ -6,6 +6,6 @@ Template.roomsList.helpers({
 
 Template.roomsList.events({
   'click a.btn': function() {
-    Meteor.call('playerJoinRoom', this.name);
+    Meteor.call('playerJoinRoom', this);
   }
 });

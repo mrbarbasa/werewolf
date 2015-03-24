@@ -41,15 +41,14 @@ Template.roomLobby.helpers({
 
 Template.roomLobby.events({
   'click #start-game': function() {
-    var room = this;
-    Meteor.call('startGame', room);
+    Meteor.call('startGame', this);
   },
   // TODO: For testing only
   'click #game-cleanup': function() {
     Meteor.call('gameCleanup', this);
   },
   'click #leave-room': function() {
-    Meteor.call('playerLeaveRoom', this.name);
+    Meteor.call('playerLeaveRoom', this);
   },
   'click #game-menu': function() {
     $('#role-villager').toggleClass('hidden');

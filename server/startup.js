@@ -9,6 +9,7 @@ Meteor.startup(function() {
     gameCleanup: gameCleanup,
     playerJoinRoom: playerJoinRoom,
     playerLeaveRoom: playerLeaveRoom,
+    removePlayerFromRoom: removePlayerFromRoom,
     playerKillPlayer: playerKillPlayer,
     playerScanPlayer: playerScanPlayer,
     playerAccusePlayer: playerAccusePlayer,
@@ -335,61 +336,85 @@ Meteor.startup(function() {
     this.numRoomsWaiting = Rooms.find({state: 'WAITING'}).count();;
   }
 
-  function playerJoinRoom(roomName) {
+  function playerJoinRoom(room) {
+    var r = Rooms.findOne(room._id);
+
     if (!Meteor.user()) {
-      console.log('User was not signed in and therefore could not join room ' + roomName);
+      console.log('User was not signed in and therefore could not join room ' + r.name);
       return;
     }
 
     var username = Meteor.user().username;
     var currentPlayer = Players.findOne({name: username});
 
-    var roomExists = false;
-
-    // Update player room reference
-    var room = Rooms.findOne({name: roomName});
-    Players.update(currentPlayer._id, {$set: {roomId: room._id}});
-
-    // Possibly change to a for loop in order to break immediately once room is found
-    Rooms.find().forEach(function(r) {
-      if (r.name === roomName) {
-        roomExists = true;
-
-        // There's space left in the room for this player to join
-        if (r.players.length < r.maxPlayers) {
-          Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
-            if (!err) {
-              console.log(currentPlayer.name + ' joined room ' + r.name);
-              // TODO: Broadcast a message to the room that player has joined
-            }
-          });
+    // There's space left in the room for this player to join
+    if (r.players.length < r.maxPlayers) {
+      Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
+        if (!err) {
+          // Update player room reference
+          Players.update(currentPlayer._id, {$set: {roomId: r._id}});
+          console.log(currentPlayer.name + ' joined room ' + r.name);
+          // TODO: Broadcast a message to the room that player has joined
         }
         else {
-          console.log('Player ' + currentPlayer.name + ' attempted to join full room ' + r.name);
-          // TODO: Send a message to the current player that the room is full
+          console.log('Error joining room ' + r.name);
         }
-      }
-    });
-
-    if (!roomExists) {
-      console.log('Room named ' + roomName + ' was not found');
-      // TODO: Send a message to the current player that the room was not found
+      });
+    }
+    else {
+      console.log('Player ' + currentPlayer.name + ' attempted to join full room ' + r.name);
+      // TODO: Send a message to the current player that the room is full
     }
   }
 
-  function playerLeaveRoom(roomName) {
-    var r = Rooms.findOne({name: roomName});
+  function playerLeaveRoom(room) {
+    var r = Rooms.findOne(room._id);
     var currentPlayer = Players.findOne({name: Meteor.user().username});
 
-    // Update player room reference
-    Players.update(currentPlayer._id, {$set: {roomId: null}});
+    var index = -1;
+    for (var i = 0; i < r.players.length; i++) {
+      if (r.players[i]._id === currentPlayer._id) {
+        index = i;
+        break;
+      }
+    }
 
-    var index = r.players.indexOf(currentPlayer); // TODO: This doesn't appear to be working properly
     if (index > -1) {
       Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
         if (!err) {
+          // Update player room reference
+          Players.update(currentPlayer._id, {$set: {roomId: null}});
           console.log(currentPlayer.name + ' left room ' + r.name);
           // TODO: Broadcast a message to the room that player has left
+        }
+        else {
+          console.log('Error leaving room ' + r.name);
+        }
+      });
+    }
+  }
+
+  function removePlayerFromRoom(roomId, currentPlayer) {
+    var r = Rooms.findOne(roomId);
+
+    var index = -1;
+    for (var i = 0; i < r.players.length; i++) {
+      if (r.players[i]._id === currentPlayer._id) {
+        index = i;
+        break;
+      }
+    }
+
+    if (index > -1) {
+      Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
+        if (!err) {
+          // Update player room reference
+          Players.update(currentPlayer._id, {$set: {roomId: null}});
+          console.log('Removed disconnected player ' + currentPlayer.name + ' from room ' + r.name);
+          // TODO: Broadcast a message to the room that player has left
+        }
+        else {
+          console.log('Error leaving room ' + r.name);
         }
       });
     }
