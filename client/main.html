@@ -5,19 +5,23 @@
 <template name="main">
   <div class="container">
     <div id="messages">
-      <a href="#" id="quick-game" class="btn btn-default">Quick Game</a>
-      <br>
-      <br>
-      <a href="{{pathFor 'roomsList'}}" id="join-game" class="btn btn-default">Join Game</a>
-      <br>
-      <br>
-      <a href="#" id="host-game" class="btn btn-default">Host Game</a>
-      <br>
-      <br>
-      <a href="#" id="view-profile" class="btn btn-default">View Profile</a>
-      <br>
-      <br>
-      <a href="#" id="game-options" class="btn btn-default">Options</a>
+      {{#if currentUser}}
+        <a href="#" id="quick-game" class="btn btn-default">Quick Game</a>
+        <br>
+        <br>
+        <a href="{{pathFor 'roomsList'}}" id="join-game" class="btn btn-default">Join Game</a>
+        <br>
+        <br>
+        <a href="#" id="host-game" class="btn btn-default">Host Game</a>
+        <br>
+        <br>
+        <a href="#" id="view-profile" class="btn btn-default">View Profile</a>
+        <br>
+        <br>
+        <a href="#" id="game-options" class="btn btn-default">Options</a>
+      {{else}}
+        <p>Join the fun and create an account!</p>
+      {{/if}}
     </div>
   </div>
 </template>
