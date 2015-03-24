@@ -1,9 +1,5 @@
 // TODO: Player fixtures are for testing purposes only
 if (Players.find().count() === 0) {
-  Players.insert(new Player('one'));
-
-  Players.insert(new Player('two'));
-
   Players.insert(new Player('three'));
 
   Players.insert(new Player('four'));
