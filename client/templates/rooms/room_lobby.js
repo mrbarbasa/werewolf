@@ -96,7 +96,7 @@ Template.playersList.helpers({
       easyMode = Rooms.findOne(this.roomId).mode === 'EASY';
     }
     // If easy mode, player has to be alive, else if hard mode, show scanned info regardless
-    return ((this.isAlive && easyMode) || !easyMode) && Session.get('scanned_' + this.name) === 'SCANNED';
+    return ((this.isAlive && easyMode) || !easyMode) && this.hasBeenScanned;
   },
   scannedRole: function() {
     return this.role === 'WEREWOLF' ? 'WEREWOLF' : 'nope';
@@ -125,7 +125,7 @@ Template.playersList.helpers({
         playerScanned = room.playerScanned;
       }
     }
-    return p.role === 'SEER' && p.isAlive && this.isAlive && nightPhase && !playerScanned && this.role !== 'SEER' && Session.get('scanned_' + this.name) !== 'SCANNED';
+    return p.role === 'SEER' && p.isAlive && this.isAlive && nightPhase && !playerScanned && this.role !== 'SEER' && !this.hasBeenScanned;
   },
   isAccused: function() {
     return this.accusedVotes > 0;
@@ -154,7 +154,6 @@ Template.playersList.events({
   },
   'click #scan-player': function() {
     Meteor.call('playerScanPlayer', this);
-    Session.set('scanned_' + this.name, 'SCANNED');
   },
   'click #accuse-player': function() {
     Meteor.call('playerAccusePlayer', this);

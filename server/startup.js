@@ -281,6 +281,7 @@ Meteor.startup(function() {
       Players.update(p._id, {$set: {accusedPlayerId: null}});
       Players.update(p._id, {$set: {accusedVotes: 0}});
       Players.update(p._id, {$set: {hasVoted: false}});
+      Players.update(p._id, {$set: {hasBeenScanned: false}});
     });
 
     // TODO: Use this instead, after testing
@@ -441,6 +442,7 @@ Meteor.startup(function() {
     if (room && !room.playerScanned) {
       Rooms.update(room._id, {$set: {playerScanned: true}}, null, function(err) {
         if (!err) {
+          Players.update(player._id, {$set: {hasBeenScanned: true}});
           console.log('Successfully scanned player ' + player.name);
           return true;
         }
