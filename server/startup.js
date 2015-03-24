@@ -57,11 +57,13 @@ Meteor.startup(function() {
         Rooms.update(r._id, {$set: {abstainLynchVotes: 0}});
       }
       else if (seconds === 11) { // TODO: Set to 31 after testing
-        // DAY phase, discussion: 90 seconds, from 31 to 120
-        Rooms.update(r._id, {$set: {message: 'It is day.  The villagers gather to discuss the events of the night.'}});
-        Rooms.update(r._id, {$set: {phase: 'DAY'}});
-        Rooms.update(r._id, {$set: {round: 'DISCUSSION'}});
-        Rooms.update(r._id, {$set: {playerKilled: false}});
+        if (!gameOver(r)) {
+          // DAY phase, discussion: 90 seconds, from 31 to 120
+          Rooms.update(r._id, {$set: {message: 'It is day.  The villagers gather to discuss the events of the night.'}});
+          Rooms.update(r._id, {$set: {phase: 'DAY'}});
+          Rooms.update(r._id, {$set: {round: 'DISCUSSION'}});
+          Rooms.update(r._id, {$set: {playerKilled: false}});
+        }
       }
       else if (seconds === 21) { // TODO: Set to 121 after testing
         // DAY phase, accusation: 30 seconds, from 121 to 150
@@ -76,7 +78,7 @@ Meteor.startup(function() {
         var playersAccused = [];
         Rooms.findOne(r._id).players.forEach(function(player) {
           p = Players.findOne(player._id);
-          if (p.accusedVotes >= r.minAccusedVotes) {
+          if (p.accusedVotes >= Rooms.findOne(r._id).minAccusedVotes) {
             playersAccused.push({
               _id: p._id,
               accusedVotes: p.accusedVotes
@@ -130,16 +132,42 @@ Meteor.startup(function() {
       }
       else if (seconds === 55 || (seconds === 35 && Rooms.findOne(r._id).round === 'DUSK')) { // TODO: For testing only
       // else if (seconds === 205 || (seconds === 155 && Rooms.findOne(r._id).round === 'DUSK')) { // TODO: Use this after testing
-        // Move on to the next night phase
-        seconds = 0;
+        if (!gameOver(r)) {
+          // Move on to the next night phase
+          seconds = 0;
+        }
       }
 
       // TODO: Remove latter portion of check
-      if (r.state === 'FINISHED' || (r.players.length + 2) <= r.maxPlayers) {
+      var room = Rooms.findOne(r._id);
+      if (room.state === 'FINISHED' || (room.players.length + 2) <= room.maxPlayers) {
         Meteor.clearInterval(currentGame);
-        console.log('Game finished');
+        console.log('Game interval cleared for room ' + room.name);
       }
     }, 1000);
+  }
+
+  function gameOver(r) {
+    var room = Rooms.findOne(r._id); // Must be queried again for updated good/evil count
+    if (room.evilCount >= room.goodCount) {
+      Rooms.update(r._id, {$set: {state: 'FINISHED'}});
+      Rooms.update(r._id, {$set: {message: 'Evil has won in room ' + r.name}});
+      console.log('Changed ' + r.name + ' room state to FINISHED');
+      console.log('Evil has won in room ' + r.name);
+      // TODO: Broadcast message to room
+      return true;
+    }
+    else if (room.evilCount === 0) {
+      Rooms.update(r._id, {$set: {state: 'FINISHED'}});
+      Rooms.update(r._id, {$set: {message: 'Good has won in room ' + r.name}});
+      console.log('Changed ' + r.name + ' room state to FINISHED');
+      console.log('Good has won in room ' + r.name);
+      // TODO: Broadcast message to room
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 
   function gameSetup(r) {
@@ -168,56 +196,56 @@ Meteor.startup(function() {
     var player = null;
 
     // TODO: For werewolf kill and seer scan testing purposes only
-    for (var i = 0; i < playerCount; i++) {
-      player = r.players[i];
-      if (player.name === 'one') {
-        Players.update(player._id, {$set: {role: 'WEREWOLF'}}, null, function(err) {
-          if (!err) {
-            console.log('Successfully assigned role to ' + player.name);
-          }
-          else {
-            console.log('Failed to assign role to player ' + player.name);
-            console.log(err.reason);
-          }
-        });
-      }
-      else if (player.name === 'two') {
-        Players.update(player._id, {$set: {role: 'SEER'}}, null, function(err) {
-          if (!err) {
-            console.log('Successfully assigned role to ' + player.name);
-          }
-          else {
-            console.log('Failed to assign role to player ' + player.name);
-            console.log(err.reason);
-          }
-        });
-      }
-      else {
-        Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
-          if (!err) {
-            console.log('Successfully assigned role to ' + player.name);
-          }
-          else {
-            console.log('Failed to assign role to player ' + player.name);
-            console.log(err.reason);
-          }
-        });
-      }
-    }
-
-    // TODO: Uncomment later after testing
     // for (var i = 0; i < playerCount; i++) {
     //   player = r.players[i];
-    //   Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
-    //     if (!err) {
-    //       console.log('Successfully assigned role to ' + player.name);
-    //     }
-    //     else {
-    //       console.log('Failed to assign role to player ' + player.name);
-    //       console.log(err.reason);
-    //     }
-    //   });
+    //   if (player.name === 'one') {
+    //     Players.update(player._id, {$set: {role: 'WEREWOLF'}}, null, function(err) {
+    //       if (!err) {
+    //         console.log('Successfully assigned role to ' + player.name);
+    //       }
+    //       else {
+    //         console.log('Failed to assign role to player ' + player.name);
+    //         console.log(err.reason);
+    //       }
+    //     });
+    //   }
+    //   else if (player.name === 'two') {
+    //     Players.update(player._id, {$set: {role: 'SEER'}}, null, function(err) {
+    //       if (!err) {
+    //         console.log('Successfully assigned role to ' + player.name);
+    //       }
+    //       else {
+    //         console.log('Failed to assign role to player ' + player.name);
+    //         console.log(err.reason);
+    //       }
+    //     });
+    //   }
+    //   else {
+    //     Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
+    //       if (!err) {
+    //         console.log('Successfully assigned role to ' + player.name);
+    //       }
+    //       else {
+    //         console.log('Failed to assign role to player ' + player.name);
+    //         console.log(err.reason);
+    //       }
+    //     });
+    //   }
     // }
+
+    // TODO: Uncomment later after testing
+    for (var i = 0; i < playerCount; i++) {
+      player = r.players[i];
+      Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
+        if (!err) {
+          console.log('Successfully assigned role to ' + player.name);
+        }
+        else {
+          console.log('Failed to assign role to player ' + player.name);
+          console.log(err.reason);
+        }
+      });
+    }
   }
 
   function gameCleanup(r) {
@@ -387,6 +415,16 @@ Meteor.startup(function() {
         if (!err) {
           Rooms.update(room._id, {$set: {playerKilled: true}});
           console.log('Successfully killed player ' + player.name);
+
+          // Update the room's good/evil count
+          var role = Roles.findOne({name: player.role});
+          if (role.team === 'GOOD') {
+            Rooms.update(room._id, {$set: {goodCount: room.goodCount - 1}});
+          }
+          else if (role.team === 'EVIL') {
+            Rooms.update(room._id, {$set: {evilCount: room.evilCount - 1}});
+          }
+
           return true;
         }
         else {
@@ -450,7 +488,8 @@ Meteor.startup(function() {
     }
   }
 
-  function voteLynchYes(room) {
+  function voteLynchYes(r) {
+    var room = Rooms.findOne(r._id);
     var currentPlayer = Players.findOne({name: Meteor.user().username});
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {yesLynchVotes: room.yesLynchVotes + 1}});
@@ -458,7 +497,8 @@ Meteor.startup(function() {
     }
   }
 
-  function voteLynchNo(room) {
+  function voteLynchNo(r) {
+    var room = Rooms.findOne(r._id);
     var currentPlayer = Players.findOne({name: Meteor.user().username});
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {noLynchVotes: room.noLynchVotes + 1}});
@@ -466,7 +506,8 @@ Meteor.startup(function() {
     }
   }
 
-  function voteLynchAbstain(room) {
+  function voteLynchAbstain(r) {
+    var room = Rooms.findOne(r._id);
     var currentPlayer = Players.findOne({name: Meteor.user().username});
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {abstainLynchVotes: room.abstainLynchVotes + 1}});
@@ -481,6 +522,16 @@ Meteor.startup(function() {
         if (!err) {
           Rooms.update(room._id, {$set: {playerKilled: true}});
           console.log('Successfully lynched player ' + player.name);
+
+          // Update the room's good/evil count
+          var role = Roles.findOne({name: player.role});
+          if (role.team === 'GOOD') {
+            Rooms.update(room._id, {$set: {goodCount: room.goodCount - 1}});
+          }
+          else if (role.team === 'EVIL') {
+            Rooms.update(room._id, {$set: {evilCount: room.evilCount - 1}});
+          }
+
           return true;
         }
         else {
