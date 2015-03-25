@@ -1,0 +1,8 @@
+{
+  "sourceMap": false,
+  "enableAutoprefixer": true,
+  "autoprefixerOptions": {
+    "browsers": ["> 5%"],
+    "cascade": false
+  }
+}
