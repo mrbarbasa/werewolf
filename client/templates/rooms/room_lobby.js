@@ -48,7 +48,7 @@ Template.roomLobby.events({
     Meteor.call('gameCleanup', this);
   },
   'click #leave-room': function() {
-    Meteor.call('playerLeaveRoom', this);
+    Meteor.call('playerLeaveRoom', this._id);
   },
   'click #game-menu': function() {
     $('#role-villager').toggleClass('hidden');

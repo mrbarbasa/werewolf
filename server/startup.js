@@ -5,11 +5,11 @@ Meteor.startup(function() {
   Meteor.methods({
     getServerTime: getServerTime,
     executeUserAction: executeUserAction,
+    roomCreate: roomCreate,
     startGame: startGame,
     gameCleanup: gameCleanup,
     playerJoinRoom: playerJoinRoom,
     playerLeaveRoom: playerLeaveRoom,
-    removePlayerFromRoom: removePlayerFromRoom,
     playerKillPlayer: playerKillPlayer,
     playerScanPlayer: playerScanPlayer,
     playerAccusePlayer: playerAccusePlayer,
@@ -27,6 +27,15 @@ Meteor.startup(function() {
     // .fromNow(true) // 3 minutes
     var timeElapsed = moment(timeStart).fromNow(true);
     return timeElapsed;
+  }
+
+  function roomCreate(roomName) {
+    var roomId = Rooms.insert(new Room(roomName));
+    playerJoinRoom(Rooms.findOne(roomId), true);
+
+    return {
+      _id: roomId
+    };
   }
 
   function startGame(r) {
@@ -272,6 +281,7 @@ Meteor.startup(function() {
     Rooms.update(r._id, {$set: {yesLynchVotes: 0}});
     Rooms.update(r._id, {$set: {noLynchVotes: 0}});
     Rooms.update(r._id, {$set: {abstainLynchVotes: 0}});
+    Rooms.update(r._id, {$set: {hostPlayerId: null}});
 
     // TODO: Remove after testing
     // Player cleanup
@@ -336,7 +346,7 @@ Meteor.startup(function() {
     this.numRoomsWaiting = Rooms.find({state: 'WAITING'}).count();;
   }
 
-  function playerJoinRoom(room) {
+  function playerJoinRoom(room, isHost) {
     var r = Rooms.findOne(room._id);
 
     if (!Meteor.user()) {
@@ -353,6 +363,12 @@ Meteor.startup(function() {
         if (!err) {
           // Update player room reference
           Players.update(currentPlayer._id, {$set: {roomId: r._id}});
+
+          if (isHost) {
+            Players.update(currentPlayer._id, {$set: {isHost: true}});
+            Rooms.update(r._id, {$set: {hostPlayerId: currentPlayer._id}});
+          }
+
           console.log(currentPlayer.name + ' joined room ' + r.name);
           // TODO: Broadcast a message to the room that player has joined
         }
@@ -367,57 +383,46 @@ Meteor.startup(function() {
     }
   }
 
-  function playerLeaveRoom(room) {
-    var r = Rooms.findOne(room._id);
-    var currentPlayer = Players.findOne({name: Meteor.user().username});
-
-    var index = -1;
-    for (var i = 0; i < r.players.length; i++) {
-      if (r.players[i]._id === currentPlayer._id) {
-        index = i;
-        break;
-      }
-    }
-
-    if (index > -1) {
-      Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
-        if (!err) {
-          // Update player room reference
-          Players.update(currentPlayer._id, {$set: {roomId: null}});
-          console.log(currentPlayer.name + ' left room ' + r.name);
-          // TODO: Broadcast a message to the room that player has left
-        }
-        else {
-          console.log('Error leaving room ' + r.name);
-        }
-      });
-    }
-  }
-
-  function removePlayerFromRoom(roomId, currentPlayer) {
+  function playerLeaveRoom(roomId, thisPlayer, status) {
     var r = Rooms.findOne(roomId);
+    var currentPlayer = thisPlayer || Players.findOne({name: Meteor.user().username});
 
-    var index = -1;
-    for (var i = 0; i < r.players.length; i++) {
-      if (r.players[i]._id === currentPlayer._id) {
-        index = i;
-        break;
-      }
-    }
+    Rooms.update(r._id, {$pull: {players: {_id: currentPlayer._id}}}, null, function(err) {
+      if (!err) {
+        // Update player room reference
+        Players.update(currentPlayer._id, {$set: {roomId: null}});
 
-    if (index > -1) {
-      Rooms.update(r._id, {$pop: {players: index}}, null, function(err) {
-        if (!err) {
-          // Update player room reference
-          Players.update(currentPlayer._id, {$set: {roomId: null}});
+        // If the host leaves the room
+        if (currentPlayer.isHost) {
+          Players.update(currentPlayer._id, {$set: {isHost: false}});
+
+          // Assign the next player as the host
+          var remainingPlayers = Rooms.findOne(r._id).players;
+          if (remainingPlayers.length > 0) {
+            Rooms.update(r._id, {$set: {hostPlayerId: remainingPlayers[0]._id}}, null, function(err) {
+              if (!err) {
+                Players.update(remainingPlayers[0]._id, {$set: {isHost: true}});
+                console.log('Set player ' + remainingPlayers[0].name + ' as new host of room ' + r.name);
+              }
+            });
+          }
+          else {
+            Rooms.update(r._id, {$set: {hostPlayerId: null}});
+          }
+        }
+
+        if (status === 'DISCONNECTED') {
           console.log('Removed disconnected player ' + currentPlayer.name + ' from room ' + r.name);
-          // TODO: Broadcast a message to the room that player has left
         }
         else {
-          console.log('Error leaving room ' + r.name);
+          console.log(currentPlayer.name + ' left room ' + r.name);
         }
-      });
-    }
+        // TODO: Broadcast a message to the room that player has left
+      }
+      else {
+        console.log('Error leaving room ' + r.name);
+      }
+    });
   }
 
   function playerKillPlayer(player) {
@@ -555,5 +560,22 @@ Meteor.startup(function() {
       });
     }
   }
+
+  Rooms.find().observeChanges({
+    changed: function(id, newFields) {
+      var r = Rooms.findOne(id);
+
+      if (newFields.players) {
+        // If the room is empty, delete the room
+        if (newFields.players.length === 0) {
+          Rooms.remove(r._id, function(err) {
+            if (!err) {
+              console.log('Deleted empty room ' + r.name);
+            }
+          })
+        }
+      }
+    }
+  });
 
 });
