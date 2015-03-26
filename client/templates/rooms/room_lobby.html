@@ -61,6 +61,14 @@
       {{/if}}
       </p>
     {{/each}}
+
+    {{#each suicidalPlayers}}
+      <p><span class="dead-player">{{name}}</span>
+      {{#if isEasyMode}}
+        <span>({{role}})</span>
+      {{/if}}
+      </p>
+    {{/each}}
   </div>
 </template>
 

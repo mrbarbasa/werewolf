@@ -282,6 +282,7 @@ Meteor.startup(function() {
     Rooms.update(r._id, {$set: {noLynchVotes: 0}});
     Rooms.update(r._id, {$set: {abstainLynchVotes: 0}});
     Rooms.update(r._id, {$set: {hostPlayerId: null}});
+    Rooms.update(r._id, {$set: {suicidalPlayers: []}});
 
     // TODO: Remove after testing
     // Player cleanup
@@ -357,6 +358,12 @@ Meteor.startup(function() {
     var username = Meteor.user().username;
     var currentPlayer = Players.findOne({name: username});
 
+    // TODO: For testing only
+    if (currentPlayer.name === 'one') {
+      Players.update(currentPlayer._id, {$set: {isHost: true}});
+      Rooms.update(r._id, {$set: {hostPlayerId: currentPlayer._id}});
+    }
+
     // There's space left in the room for this player to join
     if (r.players.length < r.maxPlayers) {
       Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
@@ -391,6 +398,37 @@ Meteor.startup(function() {
       if (!err) {
         // Update player room reference
         Players.update(currentPlayer._id, {$set: {roomId: null}});
+
+        // If room is still playing, add this player to the room's suicidal players' list
+        if (r.state === 'PLAYING') {
+          // Only add the necessary information, since actual player object should be free to play another game
+          var suicidalPlayer = {
+            _id: currentPlayer._id,
+            name: currentPlayer.name,
+            role: currentPlayer.role,
+            roomId: currentPlayer.roomId
+          };
+          Rooms.update(r._id, {$addToSet: {suicidalPlayers: suicidalPlayer}});
+
+          // Update the room's good/evil count
+          var role = Roles.findOne({name: currentPlayer.role});
+          if (role.team === 'GOOD') {
+            Rooms.update(r._id, {$set: {goodCount: r.goodCount - 1}});
+          }
+          else if (role.team === 'EVIL') {
+            Rooms.update(r._id, {$set: {evilCount: r.evilCount - 1}});
+          }
+
+          // Reset all of the player's game information, except their isHost property,
+          //   which is evaluated separately
+          Players.update(currentPlayer._id, {$set: {role: null}});
+          Players.update(currentPlayer._id, {$set: {isAlive: true}});
+          Players.update(currentPlayer._id, {$set: {roomId: null}});
+          Players.update(currentPlayer._id, {$set: {accusedPlayerId: null}});
+          Players.update(currentPlayer._id, {$set: {accusedVotes: 0}});
+          Players.update(currentPlayer._id, {$set: {hasVoted: false}});
+          Players.update(currentPlayer._id, {$set: {hasBeenScanned: false}});
+        }
 
         // If the host leaves the room
         if (currentPlayer.isHost) {
@@ -561,21 +599,22 @@ Meteor.startup(function() {
     }
   }
 
-  Rooms.find().observeChanges({
-    changed: function(id, newFields) {
-      var r = Rooms.findOne(id);
+  // TODO: Uncomment later after testing
+  // Rooms.find().observeChanges({
+  //   changed: function(id, newFields) {
+  //     var r = Rooms.findOne(id);
 
-      if (newFields.players) {
-        // If the room is empty, delete the room
-        if (newFields.players.length === 0) {
-          Rooms.remove(r._id, function(err) {
-            if (!err) {
-              console.log('Deleted empty room ' + r.name);
-            }
-          })
-        }
-      }
-    }
-  });
+  //     if (newFields.players) {
+  //       // If the room is empty, delete the room
+  //       if (newFields.players.length === 0) {
+  //         Rooms.remove(r._id, function(err) {
+  //           if (!err) {
+  //             console.log('Deleted empty room ' + r.name);
+  //           }
+  //         })
+  //       }
+  //     }
+  //   }
+  // });
 
 });

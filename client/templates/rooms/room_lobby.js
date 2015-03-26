@@ -144,6 +144,16 @@ Template.playersList.helpers({
       }
     }
     return dayPhase && accusationRound && p.isAlive && this.isAlive && p._id !== this._id && p.accusedPlayerId !== this._id;
+  },
+  suicidalPlayers: function() {
+    return Rooms.findOne({name: this.name}).suicidalPlayers;
+  },
+  isEasyMode: function() {
+    var easyMode = false;
+    if (this.roomId) {
+      easyMode = Rooms.findOne(this.roomId).mode === 'EASY';
+    }
+    return easyMode
   }
 });
 
