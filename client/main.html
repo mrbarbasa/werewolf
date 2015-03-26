@@ -13,27 +13,42 @@
   <![endif]-->
 </head>
 
-<head>
-
-</head>
-
 <template name="main">
-  <div class="container">
-    <div id="messages">
-      {{#if currentUser}}
-        <a href="{{pathFor 'roomsList'}}" id="join-game" class="btn btn-default">Join Game</a>
-        <br>
-        <br>
-        <a href="{{pathFor 'roomHost'}}" id="host-game" class="btn btn-default">Host Game</a>
-        <br>
-        <br>
-        <a href="#" id="view-profile" class="btn btn-default">View Profile</a>
-        <br>
-        <br>
-        <a href="#" id="game-options" class="btn btn-default">Options</a>
-      {{else}}
-        <p>Join the fun and create an account!</p>
-      {{/if}}
+  <header class="header-block">
+    <!-- {{> loginButtons}} -->
+    <h1><a class="page-title" href="{{pathFor 'main'}}">Werewolf</a></h1>
+  </header>
+
+  <div class="content-block">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          {{#if currentUser}}
+            <section id="menu-section">
+              <a href="{{pathFor 'roomsList'}}" id="join-game" class="btn btn-default">Join Game</a>
+              <br>
+              <br>
+              <a href="{{pathFor 'roomHost'}}" id="host-game" class="btn btn-default">Host Game</a>
+              <br>
+              <br>
+              <a href="#" id="view-profile" class="btn btn-default">View Profile</a>
+              <br>
+              <br>
+              <a href="#" id="game-options" class="btn btn-default">Options</a>
+            </section>
+          {{else}}
+            <section id="intro-section">
+              <p class="intro-text">Manic town</p>
+              <p class="intro-text">Full of manic people</p>
+              <p class="intro-text">Waking up each day</p>
+              <p class="intro-text">No more</p>
+              <ul class="login-buttons nav navbar-nav">
+                {{> loginButtons}}
+              </ul>
+            </section>
+          {{/if}}
+        </div>
+      </div>
     </div>
   </div>
 </template>

@@ -1,0 +1,15 @@
+// Globals defined in -settings.scss
+
+@mixin font-settings($font-size: 1em,
+                      $font-color: #000000,
+                      $font-weight: normal,
+                      $font-transform: none,
+                      $font-spacing: none,
+                      $font-lineheight: 1.5em) {
+  font-size: $font-size;
+  color: $font-color;
+  font-weight: $font-weight;
+  text-transform: $font-transform;
+  letter-spacing: $font-spacing;
+  line-height: $font-lineheight;
+}
