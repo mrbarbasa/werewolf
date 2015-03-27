@@ -1,14 +1,24 @@
 <template name="roomsList">
-  <div class="container">
-    <div id="messages">
-      <h4>Select a room to join</h4>
-      {{#each rooms}}
-        <div class="room">
-          <div class="room-content">
-            <p><a href="{{pathFor 'roomLobby'}}" class="btn btn-default">{{name}}</a></p>
-          </div>
+  <header class="header-block">
+    <h1><a class="page-title" href="{{pathFor 'main'}}">Join Game</a></h1>
+  </header>
+
+  <div class="content-block">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <section id="rooms-section">
+            <h3>Select a room to join</h3>
+            <div class="rooms-list">
+              {{#each rooms}}
+                <div class="room-item">
+                  <p><a href="{{pathFor 'roomLobby'}}" class="btn btn-default">{{name}}</a></p>
+                </div>
+              {{/each}}
+            </div>
+          </section>
         </div>
-      {{/each}}
+      </div>
     </div>
   </div>
 </template>

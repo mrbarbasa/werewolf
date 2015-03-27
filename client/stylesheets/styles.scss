@@ -17,18 +17,23 @@ body {
 
 .layout-block {
   // background-color: cornflowerblue;
-  padding: 10px 40px 40px 40px;
+  padding: 10px 28px 40px 28px;
 }
 
 .header-block {
   // background-color: tan;
   text-align: center;
-  margin-bottom: 40px;
-  a.page-title {
+  a.site-title {
     // background-color: pink;
     text-decoration: none;
     font-family: 'Rock Salt', cursive;
     @include font_settings(1.4em, black, 400, none, 2px, 1.5em);
+  }
+  a.page-title {
+    // background-color: pink;
+    text-decoration: none;
+    font-family: 'Rock Salt', cursive;
+    @include font_settings(1em, black, 400, none, 2px, 1.5em);
   }
 }
 
@@ -36,6 +41,7 @@ body {
   // background-color: tan;
   section#intro-section {
     // background-color: lightblue;
+    margin-top: 40px;
     p.intro-text {
       font-size: 1.5em;
     }
@@ -46,10 +52,54 @@ body {
     }
   }
   section#menu-section {
+    // background-color: yellow;
+    margin-top: 30px;
     text-align: center;
     font-family: 'PT Mono', cursive;
-    a {
-      font-size: 1.3em;
+    p {
+      margin-bottom: 24px;
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+      a {
+        font-size: 1.3em;
+      }
+    }
+  }
+  section#rooms-section {
+    // background-color: yellow;
+    margin-top: 16px;
+    text-align: center;
+    h3 {
+      // background-color: pink;
+      margin-bottom: 32px;
+    }
+    .rooms-list {
+      font-family: 'PT Mono', cursive;
+      .room-item {
+        margin-bottom: 14px;
+        &:last-of-type {
+          margin-bottom: 0;
+        }
+        a {
+          font-size: 1.1em;
+        }
+      }
+    }
+  }
+  section#host-section {
+    // background-color: yellow;
+    margin-top: 48px;
+    text-align: center;
+    form#host-game-form {
+      input#host-game-name {
+        margin-bottom: 48px;
+        font-size: 1.3em;
+      }
+      button#host-game-create {
+        font-family: 'PT Mono', cursive;
+        font-size: 1.3em;
+      }
     }
   }
 }

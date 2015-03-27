@@ -16,25 +16,19 @@
 <template name="main">
   <header class="header-block">
     <!-- {{> loginButtons}} -->
-    <h1><a class="page-title" href="{{pathFor 'main'}}">Werewolf</a></h1>
+    <h1><a class="site-title" href="{{pathFor 'main'}}">Werewolf</a></h1>
   </header>
 
   <div class="content-block">
     <div class="container">
       <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-4 col-sm-offset-4">
           {{#if currentUser}}
             <section id="menu-section">
-              <a href="{{pathFor 'roomsList'}}" id="join-game" class="btn btn-default">Join Game</a>
-              <br>
-              <br>
-              <a href="{{pathFor 'roomHost'}}" id="host-game" class="btn btn-default">Host Game</a>
-              <br>
-              <br>
-              <a href="#" id="view-profile" class="btn btn-default">View Profile</a>
-              <br>
-              <br>
-              <a href="#" id="game-options" class="btn btn-default">Options</a>
+              <p><a href="{{pathFor 'roomsList'}}" id="join-game" class="btn btn-default">Join Game</a></p>
+              <p><a href="{{pathFor 'roomHost'}}" id="host-game" class="btn btn-default">Host Game</a></p>
+              <p><a href="#" id="view-profile" class="btn btn-default">View Profile</a></p>
+              <p><a href="#" id="game-options" class="btn btn-default">Options</a></p>
             </section>
           {{else}}
             <section id="intro-section">
