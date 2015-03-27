@@ -1,17 +1,15 @@
 <template name="chatBox">
-  <div class="container">
-    <div id="messages">
+  <section id="chat-box">
+    <div class="chat-messages">
       {{#each messages}}
-        {{> chatMessage}}
+        <div>
+          <b>{{user}}:</b> {{message}}
+        </div>
       {{/each}}
     </div>
-    <textarea id="chat-message"></textarea><br>
-    <button class="btn btn-primary" id="send">Send Chat</button>
-  </div>
-</template>
-
-<template name="chatMessage">
-  <div>
-    <b>{{user}}:</b> {{message}}
-  </div>
+    <div class="chat-controls clearfix">
+      <input type="text" name="chat-message" id="chat-message" class="form-control">
+      <button id="send-message" class="btn btn-default">Send</button>
+    </div>
+  </section>
 </template>

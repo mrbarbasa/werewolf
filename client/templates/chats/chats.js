@@ -13,13 +13,7 @@ chatStream.on('chat', function(message) {
 Template.chatBox.helpers({
   "messages": function() {
     return chatCollection.find();
-  }
-});
-
-
-var subscribedUsers = {};
-
-Template.chatMessage.helpers({
+  },
   "user": function() {
     if(this.userId == 'me') {
       return "me";
@@ -36,15 +30,30 @@ Template.chatMessage.helpers({
   }
 });
 
+
+var subscribedUsers = {};
+
+
 Template.chatBox.events({
-  "click #send": function() {
+  "click #send-message": function() {
     var message = $('#chat-message').val();
     chatCollection.insert({
       userId: 'me',
       message: message
     });
     chatStream.emit('chat', message);
-     $('#chat-message').val('');
+    $('#chat-message').val('');
+  },
+  "keyup #chat-message": function(e) {
+    if (e.keyCode === 13) {
+      var message = $('#chat-message').val();
+      chatCollection.insert({
+        userId: 'me',
+        message: message
+      });
+      chatStream.emit('chat', message);
+      $('#chat-message').val('');
+    }
   }
 });
 

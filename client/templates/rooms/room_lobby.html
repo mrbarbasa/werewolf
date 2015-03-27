@@ -1,40 +1,56 @@
 <template name="roomLobby">
-  <h4>{{name}}</h4>
-  <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default">Leave Room</a>
-  <a href="#" id="game-menu" class="btn btn-default">Menu</a>
-  <a href="#" id="game-cleanup" class="btn btn-default">Game Reset</a>
-  <p>Current State: {{currentState}}</p>
-  <p>Current Role: {{currentRole}}</p>
-  <p>Current Time: {{currentTime}}</p>
-  <p>Server Message: {{serverMessage}}</p>
-  <p>Player Accused: {{playerAccused}}</p>
-  {{#if canStartGame}}
-    <p><button type="button" id="start-game" class="btn btn-default">Start Game</button></p>
-  {{/if}}
-  <br>
-  <br>
-  <!-- {{> usersList}} -->
-  <!-- {{#if isPlaying}} // TODO: Uncomment later -->
-    <div id="role-information">
-      {{> roleVillager}}
-      {{> roleSeer}}
-      {{> roleWerewolf}}
+  <header class="header-block">
+    <div class="room-lobby-header clearfix">
+      <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default"><i class="fa fa-times"></i></a>
+      <h3><a class="room-title" href="{{pathFor 'main'}}">{{name}}</a></h3>
+      <a href="#" id="game-menu" class="btn btn-default"><i class="fa fa-bars"></i></a>
+      <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a>
     </div>
-    <div id="game-panel">
-      {{#if isNightPhase}}
-        <p>NIGHT</p>
-      {{/if}}
-      {{#if isDayPhase}}
-        <p>DAY</p>
-        {{#if isJudgmentRound}}
-          <button id="vote-yes" class="btn btn-default">Yes</button>
-          <button id="vote-no" class="btn btn-default">No</button>
-          <button id="vote-abstain" class="btn btn-default">Abstain</button>
-        {{/if}}
-      {{/if}}
+  </header>
+
+  <div class="content-block">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+          {{> chatBox}}
+          <br>
+          <br>
+          <p>Current State: {{currentState}}</p>
+          <p>Current Role: {{currentRole}}</p>
+          <p>Current Time: {{currentTime}}</p>
+          <p>Server Message: {{serverMessage}}</p>
+          <p>Player Accused: {{playerAccused}}</p>
+          {{#if canStartGame}}
+            <p><button type="button" id="start-game" class="btn btn-default">Start Game</button></p>
+          {{/if}}
+          <br>
+          <br>
+          <!-- {{> usersList}} -->
+          <!-- {{#if isPlaying}} // TODO: Uncomment later -->
+            <div id="role-information">
+              {{> roleVillager}}
+              {{> roleSeer}}
+              {{> roleWerewolf}}
+            </div>
+            <div id="game-panel">
+              {{#if isNightPhase}}
+                <p>NIGHT</p>
+              {{/if}}
+              {{#if isDayPhase}}
+                <p>DAY</p>
+                {{#if isJudgmentRound}}
+                  <button id="vote-yes" class="btn btn-default">Yes</button>
+                  <button id="vote-no" class="btn btn-default">No</button>
+                  <button id="vote-abstain" class="btn btn-default">Abstain</button>
+                {{/if}}
+              {{/if}}
+            </div>
+            {{> playersList}}
+          <!-- {{/if}} -->
+        </div>
+      </div>
     </div>
-    {{> playersList}}
-  <!-- {{/if}} -->
+  </div>
 </template>
 
 <template name="playersList">

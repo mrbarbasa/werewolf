@@ -35,6 +35,30 @@ body {
     font-family: 'Rock Salt', cursive;
     @include font_settings(1em, black, 400, none, 2px, 1.5em);
   }
+  a.room-title {
+    // background-color: pink;
+    text-decoration: none;
+    // font-family: 'Rock Salt', cursive;
+    @include font_settings(1em, black, 400, none, 2px, 1.5em);
+  }
+  .room-lobby-header {
+    h3 {
+      float: left;
+      width: 70%;
+    }
+    a {
+      float: left;
+      &#leave-room {
+        width: 10%;
+      }
+      &#game-menu {
+        width: 10%;
+      }
+      &#game-cleanup {
+        width: 10%;
+      }
+    }
+  }
 }
 
 .content-block {
@@ -102,20 +126,28 @@ body {
       }
     }
   }
-}
-
-#chat-message {
-  width: 500px;
-  height: 50px;
-}
-
-#messages {
-  background-color: #F8F8F8;
-  width: 550px;
-  height: 300px;
-  border: 1px solid rgb(230, 230, 230);
-  margin: 20px 0;
-  padding: 5px 15px;
+  section#chat-box {
+    .chat-messages {
+      font-family: 'Alegreya SC', cursive;
+      background-color: #F8F8F8;
+      border: 1px solid rgb(230, 230, 230);
+      height: 200px;
+      margin: 20px 0;
+      padding: 10px 15px;
+      overflow-y: auto;
+    }
+    .chat-controls {
+      font-family: 'PT Mono', cursive;
+      #chat-message {
+        float: left;
+        width: 80%;
+      }
+      #send-message {
+        float: left;
+        width: 20%;
+      }
+    }
+  }
 }
 
 .living-player {

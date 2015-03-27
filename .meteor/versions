@@ -16,13 +16,13 @@ deps@1.0.7
 ejson@1.0.6
 email@1.0.6
 fastclick@1.0.3
-fourseven:scss@1.0.0
+fortawesome:fontawesome@4.2.0_2
+fourseven:scss@1.2.3
 geojson-utils@1.0.3
-handlebars@1.0.3
 html-tools@1.0.4
 htmljs@1.0.4
 http@1.1.0
-ian:accounts-ui-bootstrap-3@1.2.35
+ian:accounts-ui-bootstrap-3@1.2.37
 id-map@1.0.3
 iron:controller@1.0.7
 iron:core@1.0.7
