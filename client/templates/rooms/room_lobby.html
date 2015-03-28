@@ -1,10 +1,19 @@
 <template name="roomLobby">
   <header class="header-block">
-    <div class="room-lobby-header clearfix">
-      <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default"><i class="fa fa-times"></i></a>
-      <h3><a class="room-title" href="{{pathFor 'main'}}">{{name}}</a></h3>
-      <a href="#" id="game-menu" class="btn btn-default"><i class="fa fa-bars"></i></a>
-      <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+          <div class="room-lobby-header clearfix">
+            <div id="leave-room-div">
+              <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default"><i class="fa fa-times"></i></a>
+            </div>
+            <h3 class="room-title">{{name}}</h3>
+            <div id="game-menu-div">
+              <a href="#" id="game-menu" class="btn btn-default"><i class="fa fa-bars"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -13,6 +22,9 @@
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
           {{> chatBox}}
+          <br>
+          <br>
+          <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a>
           <br>
           <br>
           <p>Current State: {{currentState}}</p>

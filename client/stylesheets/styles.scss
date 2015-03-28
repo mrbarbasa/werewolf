@@ -17,7 +17,7 @@ body {
 
 .layout-block {
   // background-color: cornflowerblue;
-  padding: 10px 28px 40px 28px;
+  padding: 10px 0;
 }
 
 .header-block {
@@ -27,7 +27,8 @@ body {
     // background-color: pink;
     text-decoration: none;
     font-family: 'Rock Salt', cursive;
-    @include font_settings(1.4em, black, 400, none, 2px, 1.5em);
+    @include font_settings(1.3em, black, 400, none, 2px, 1.5em);
+    padding: 0 10px;
   }
   a.page-title {
     // background-color: pink;
@@ -35,28 +36,31 @@ body {
     font-family: 'Rock Salt', cursive;
     @include font_settings(1em, black, 400, none, 2px, 1.5em);
   }
-  a.room-title {
+  h3.room-title {
     // background-color: pink;
-    text-decoration: none;
-    // font-family: 'Rock Salt', cursive;
-    @include font_settings(1em, black, 400, none, 2px, 1.5em);
+    @include font_settings(1.3em, black, 400, none, 2px, 1.5em);
   }
   .room-lobby-header {
-    h3 {
+    // background-color: yellow;
+    h3.room-title {
+      // background-color: orange;
       float: left;
       width: 70%;
+      margin: 0;
+      padding: 0 12px;
+      word-wrap: break-word;
     }
-    a {
+    #leave-room-div {
+      // background-color: pink;
       float: left;
-      &#leave-room {
-        width: 10%;
-      }
-      &#game-menu {
-        width: 10%;
-      }
-      &#game-cleanup {
-        width: 10%;
-      }
+      width: 15%;
+      text-align: left;
+    }
+    #game-menu-div {
+      // background-color: tan;
+      float: left;
+      width: 15%;
+      text-align: right;
     }
   }
 }
