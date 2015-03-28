@@ -36,10 +36,6 @@ body {
     font-family: 'Rock Salt', cursive;
     @include font_settings(1em, black, 400, none, 2px, 1.5em);
   }
-  h3.room-title {
-    // background-color: pink;
-    @include font_settings(1.3em, black, 400, none, 2px, 1.5em);
-  }
   .room-lobby-header {
     // background-color: yellow;
     h3.room-title {
@@ -49,6 +45,7 @@ body {
       margin: 0;
       padding: 0 12px;
       word-wrap: break-word;
+      @include font_settings(1.3em, black, 400, none, 2px, 2em);
     }
     #leave-room-div {
       // background-color: pink;
@@ -141,7 +138,7 @@ body {
       font-family: 'Alegreya SC', cursive;
       background-color: #F8F8F8;
       border: 1px solid rgb(230, 230, 230);
-      height: 220px;
+      height: 217px;
       padding: 10px 15px;
       overflow-y: auto;
     }
