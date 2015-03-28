@@ -21,24 +21,36 @@
     <div class="container">
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
+          <section id="game-status">
+            <p>Current State: {{currentState}}</p>
+            <!-- <p>Current Role: {{currentRole}}</p> -->
+            <p>Current Time: {{currentTime}}</p>
+            <p>Server Message: {{serverMessage}}</p>
+            <!-- <p>Player Accused: {{playerAccused}}</p> -->
+          </section>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
           {{> chatBox}}
-          <br>
-          <br>
-          <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a>
-          <br>
-          <br>
-          <p>Current State: {{currentState}}</p>
-          <p>Current Role: {{currentRole}}</p>
-          <p>Current Time: {{currentTime}}</p>
-          <p>Server Message: {{serverMessage}}</p>
-          <p>Player Accused: {{playerAccused}}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+          <section id="actions-section" class="clearfix">
+            <p><button type="button" id="players-list" class="btn btn-default">Players</button></p>
+            <p><button type="button" id="vote-button" class="btn btn-default">Vote</button></p>
+          </section>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+          <!-- <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a> -->
           {{#if canStartGame}}
             <p><button type="button" id="start-game" class="btn btn-default">Start Game</button></p>
           {{/if}}
-          <br>
-          <br>
           <!-- {{> usersList}} -->
-          <!-- {{#if isPlaying}} // TODO: Uncomment later -->
+          {{#if isPlaying}} <!-- TODO: Uncomment later -->
             <div id="role-information">
               {{> roleVillager}}
               {{> roleSeer}}
@@ -58,7 +70,7 @@
               {{/if}}
             </div>
             {{> playersList}}
-          <!-- {{/if}} -->
+          {{/if}}
         </div>
       </div>
     </div>

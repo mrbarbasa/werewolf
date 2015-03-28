@@ -130,13 +130,18 @@ body {
       }
     }
   }
+  section#game-status {
+    // background-color: orange;
+    margin-top: 20px;
+  }
   section#chat-box {
+    // background-color: tan;
+    margin-top: 10px;
     .chat-messages {
       font-family: 'Alegreya SC', cursive;
       background-color: #F8F8F8;
       border: 1px solid rgb(230, 230, 230);
-      height: 200px;
-      margin: 20px 0;
+      height: 220px;
       padding: 10px 15px;
       overflow-y: auto;
     }
@@ -149,6 +154,24 @@ body {
       #send-message {
         float: left;
         width: 20%;
+      }
+    }
+  }
+  section#actions-section {
+    // background-color: lightblue;
+    font-family: 'PT Mono', cursive;
+    margin-top: 22px;
+    p {
+      // background-color: yellow;
+      float: left;
+      width: 50%;
+      margin: 0;
+      padding: 0;
+      &:first-of-type {
+        text-align: left;
+      }
+      &:last-of-type {
+        text-align: right;
       }
     }
   }
