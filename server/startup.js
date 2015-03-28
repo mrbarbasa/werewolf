@@ -355,6 +355,13 @@ Meteor.startup(function() {
       return;
     }
 
+    // There is a client-side check, but if user somehow manages to bypass that,
+    //   here is the server-side check
+    if (r.state === 'PLAYING' || r.state === 'FINISHED') {
+      console.log('User attempted to join a game in session, room ' + r.name);
+      return;
+    }
+
     var username = Meteor.user().username;
     var currentPlayer = Players.findOne({name: username});
 

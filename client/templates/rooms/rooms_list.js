@@ -5,7 +5,14 @@ Template.roomsList.helpers({
 });
 
 Template.roomsList.events({
-  'click a.btn': function() {
-    Meteor.call('playerJoinRoom', this);
+  'click a.enter-room': function(e) {
+    var r = Rooms.findOne(this._id);
+    if (r.state === 'PLAYING' || r.state === 'FINISHED') {
+      alert('Cannot join a game in session');
+      e.preventDefault();
+    }
+    else {
+      Meteor.call('playerJoinRoom', r);
+    }
   }
 });
