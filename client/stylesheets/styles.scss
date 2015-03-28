@@ -131,9 +131,32 @@ body {
     // background-color: orange;
     margin-top: 20px;
   }
+  section#players-section {
+    background-color: yellow;
+    margin-top: 10px;
+    height: 251px;
+  }
+  section#vote-section {
+    // background-color: yellow;
+    margin-top: 10px;
+    height: 251px;
+    padding: 10px 15px;
+    text-align: center;
+    h5#player-accused {
+      font-size: 1.3em;
+    }
+    p {
+      // background-color: orange;
+      margin: 24px;
+      button {
+        font-family: 'PT Mono', cursive;
+      }
+    }
+  }
   section#chat-box {
     // background-color: tan;
     margin-top: 10px;
+    height: 251px;
     .chat-messages {
       font-family: 'Alegreya SC', cursive;
       background-color: #F8F8F8;

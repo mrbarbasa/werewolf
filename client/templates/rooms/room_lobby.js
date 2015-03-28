@@ -36,6 +36,12 @@ Template.roomLobby.helpers({
   isJudgmentRound: function() {
     var p = Players.findOne({name: Meteor.user().username});
     return Rooms.findOne({name: this.name}).round === 'JUDGMENT' && !p.hasVoted && p.isAlive;
+  },
+  showPlayersList: function() {
+    return Session.get('showPlayersList');
+  },
+  showVoteButtons: function() {
+    return Session.get('showVoteButtons');
   }
 });
 
@@ -54,6 +60,24 @@ Template.roomLobby.events({
     $('#role-villager').toggleClass('hidden');
     $('#role-seer').toggleClass('hidden');
     $('#role-werewolf').toggleClass('hidden');
+  },
+  'click #players-list': function() {
+    if (Session.get('showPlayersList')) {
+      Session.set('showPlayersList', false);
+    }
+    else {
+      Session.set('showPlayersList', true);
+      Session.set('showVoteButtons', false);
+    }
+  },
+  'click #vote-toggle': function() {
+    if (Session.get('showVoteButtons')) {
+      Session.set('showVoteButtons', false);
+    }
+    else {
+      Session.set('showVoteButtons', true);
+      Session.set('showPlayersList', false);
+    }
   },
   'click #vote-yes': function() {
     Meteor.call('voteLynchYes', this);

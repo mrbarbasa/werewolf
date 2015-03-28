@@ -25,21 +25,37 @@
             <p>Current State: {{currentState}}</p>
             <!-- <p>Current Role: {{currentRole}}</p> -->
             <p>Current Time: {{currentTime}}</p>
-            <p>Server Message: {{serverMessage}}</p>
-            <!-- <p>Player Accused: {{playerAccused}}</p> -->
+            <p>It is night. The villagers retreat. {{serverMessage}}</p>
           </section>
         </div>
       </div>
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
-          {{> chatBox}}
+          {{#if showPlayersList}}
+            {{> playersList}}
+          {{else}}
+            {{#if showVoteButtons}}
+              <section id="vote-section">
+                {{#if isDayPhase}}
+                  {{#if isJudgmentRound}}
+                    <h5 id="player-accused">{{playerAccused}}</h5>
+                    <p><button id="vote-yes" class="btn btn-default">Yes</button></p>
+                    <p><button id="vote-no" class="btn btn-default">No</button></p>
+                    <p><button id="vote-abstain" class="btn btn-default">Abstain</button></p>
+                  {{/if}}
+                {{/if}}
+              </section>
+            {{else}}
+              {{> chatBox}}
+            {{/if}}
+          {{/if}}
         </div>
       </div>
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
           <section id="actions-section" class="clearfix">
             <p><button type="button" id="players-list" class="btn btn-default">Players</button></p>
-            <p><button type="button" id="vote-button" class="btn btn-default">Vote</button></p>
+            <p><button type="button" id="vote-toggle" class="btn btn-default">Vote</button></p>
           </section>
         </div>
       </div>
@@ -60,16 +76,7 @@
               {{#if isNightPhase}}
                 <p>NIGHT</p>
               {{/if}}
-              {{#if isDayPhase}}
-                <p>DAY</p>
-                {{#if isJudgmentRound}}
-                  <button id="vote-yes" class="btn btn-default">Yes</button>
-                  <button id="vote-no" class="btn btn-default">No</button>
-                  <button id="vote-abstain" class="btn btn-default">Abstain</button>
-                {{/if}}
-              {{/if}}
             </div>
-            {{> playersList}}
           {{/if}}
         </div>
       </div>
@@ -78,7 +85,7 @@
 </template>
 
 <template name="playersList">
-  <div id="players-list" class="">
+  <section id="players-section">
     {{#each players}}
       <p><span class="{{playerState}}">{{name}}</span>
       {{#if canSeeOtherRoles}}
@@ -109,7 +116,7 @@
       {{/if}}
       </p>
     {{/each}}
-  </div>
+  </section>
 </template>
 
 <template name="roleVillager">
