@@ -132,9 +132,55 @@ body {
     margin-top: 20px;
   }
   section#players-section {
-    background-color: yellow;
+    // background-color: yellow;
     margin-top: 10px;
     height: 251px;
+    overflow-y: auto;
+    padding: 10px 15px;
+    background-color: #F8F8F8;
+    .player-item {
+      // background-color: orange;
+      .player-data {
+        // background-color: yellow;
+        float: left;
+        width: 70%;
+        text-align: left;
+        padding: 10px 0;
+        line-height: 1em;
+        border-bottom: 1px solid #D0D0D0;
+        p {
+          margin: 0;
+          padding: 0;
+          &.player-name {
+            word-wrap: break-word;
+            font-size: 1.1em;
+          }
+          &.living-player {
+            color: #6A859E;
+          }
+          &.dead-player {
+            color: #9C050D;
+            text-decoration: line-through;
+          }
+          &.revealed-role {
+            font-family: 'Alegreya SC', serif;
+            text-transform: lowercase;
+          }
+        }
+      }
+      .player-actions {
+        // background-color: pink;
+        float: left;
+        width: 30%;
+        text-align: right;
+        span.accused-votes {
+          margin-right: 10px;
+        }
+      }
+      &:hover {
+        background-color: #EAEAEA;
+      }
+    }
   }
   section#vote-section {
     // background-color: yellow;
@@ -142,6 +188,7 @@ body {
     height: 251px;
     padding: 10px 15px;
     text-align: center;
+    background-color: #F8F8F8;
     h5#player-accused {
       font-size: 1.3em;
     }
@@ -195,13 +242,4 @@ body {
       }
     }
   }
-}
-
-.living-player {
-  color: #6A859E;
-}
-
-.dead-player {
-  color: #9C050D;
-  text-decoration: line-through;
 }

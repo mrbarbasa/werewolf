@@ -87,34 +87,44 @@
 <template name="playersList">
   <section id="players-section">
     {{#each players}}
-      <p><span class="{{playerState}}">{{name}}</span>
-      {{#if canSeeOtherRoles}}
-        <span>({{role}})</span>
-      {{/if}}
-      {{#if scannedBySeer}}
-        <span>({{scannedRole}})</span>
-      {{/if}}
-      {{#if showKillButton}}
-        <button id="kill-player" class="btn btn-default">Kill</button>
-      {{/if}}
-      {{#if showScanButton}}
-        <button id="scan-player" class="btn btn-default">Scan</button>
-      {{/if}}
-      {{#if isAccused}}
-        <span>{{accusedVotes}}</span>
-      {{/if}}
-      {{#if showAccuseButton}}
-        <button id="accuse-player" class="btn btn-default">Accuse</button>
-      {{/if}}
-      </p>
+      <div class="player-item clearfix">
+        <div class="player-data">
+          <p class="{{playerState}} player-name">{{name}}</p>
+          {{#if canSeeOtherRoles}}
+            <p class="revealed-role">{{role}}</p>
+          {{/if}}
+          {{#if scannedBySeer}}
+            <p class="revealed-role">{{scannedRole}}</p>
+          {{/if}}
+        </div>
+        <div class="player-actions">
+          {{#if isAccused}}
+            <span class="accused-votes">{{accusedVotes}}</span>
+          {{/if}}
+          {{#if showKillButton}}
+            <button id="kill-player" class="btn btn-default"><i class="fa fa-check-square-o"></i></button>
+          {{/if}}
+          {{#if showScanButton}}
+            <button id="scan-player" class="btn btn-default"><i class="fa fa-eye"></i></button>
+          {{/if}}
+          {{#if showAccuseButton}}
+            <button id="accuse-player" class="btn btn-default"><i class="fa fa-hand-o-left"></i></button>
+          {{/if}}
+        </div>
+      </div>
     {{/each}}
 
     {{#each suicidalPlayers}}
-      <p><span class="dead-player">{{name}}</span>
-      {{#if isEasyMode}}
-        <span>({{role}})</span>
-      {{/if}}
-      </p>
+      <div class="player-item clearfix">
+        <div class="player-data">
+          <p class="dead-player player-name">{{name}}</p>
+          {{#if isEasyMode}}
+            <p class="revealed-role">{{role}}</p>
+          {{/if}}
+        </div>
+        <div class="player-actions">
+        </div>
+      </div>
     {{/each}}
   </section>
 </template>
