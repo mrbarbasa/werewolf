@@ -22,10 +22,12 @@
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
           <section id="game-status">
-            <p>Current State: {{currentState}}</p>
-            <!-- <p>Current Role: {{currentRole}}</p> -->
-            <p>Current Time: {{currentTime}}</p>
-            <p>It is night. The villagers retreat. {{serverMessage}}</p>
+            {{#if isPlaying}}
+              <!-- <p>Current State: {{currentState}}</p> -->
+              <!-- <p>Current Role: {{currentRole}}</p> -->
+              <p class="game-clock"><i class="fa fa-clock-o fa-lg"></i>&nbsp;&nbsp;{{currentTime}}</p>
+              <p>{{serverMessage}}</p>
+            {{/if}}
           </section>
         </div>
       </div>
@@ -54,30 +56,23 @@
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
           <section id="actions-section" class="clearfix">
-            <p><button type="button" id="players-list" class="btn btn-default">Players</button></p>
-            <p><button type="button" id="vote-toggle" class="btn btn-default">Vote</button></p>
-          </section>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6 col-sm-offset-3">
-          <!-- <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a> -->
-          {{#if canStartGame}}
-            <p><button type="button" id="start-game" class="btn btn-default">Start Game</button></p>
-          {{/if}}
-          <!-- {{> usersList}} -->
-          {{#if isPlaying}} <!-- TODO: Uncomment later -->
-            <div id="role-information">
-              {{> roleVillager}}
-              {{> roleSeer}}
-              {{> roleWerewolf}}
-            </div>
-            <div id="game-panel">
-              {{#if isNightPhase}}
-                <p>NIGHT</p>
+            <p>
+              <button type="button" id="players-list" class="btn btn-default">Players</button>
+              <!-- TODO: Remove this game cleanup button later -->
+              <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a></p>
+            <p>
+              {{#if canStartGame}}
+                <button type="button" id="start-game" class="btn btn-default">Start Game</button>
               {{/if}}
-            </div>
-          {{/if}}
+              {{#if isPlaying}}
+                {{#if isDayPhase}}
+                  {{#if isJudgmentRound}}
+                    <button type="button" id="vote-toggle" class="btn btn-default">Vote</button>
+                  {{/if}}
+                {{/if}}
+              {{/if}}
+            </p>
+          </section>
         </div>
       </div>
     </div>
@@ -127,22 +122,4 @@
       </div>
     {{/each}}
   </section>
-</template>
-
-<template name="roleVillager">
-  <div id="role-villager" class="hidden">
-    {{villager}}
-  </div>
-</template>
-
-<template name="roleSeer">
-  <div id="role-seer" class="hidden">
-    {{seer}}
-  </div>
-</template>
-
-<template name="roleWerewolf">
-  <div id="role-werewolf" class="hidden">
-    {{werewolf}}
-  </div>
 </template>

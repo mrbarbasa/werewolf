@@ -130,6 +130,11 @@ body {
   section#game-status {
     // background-color: orange;
     margin-top: 20px;
+    height: 87px;
+    p.game-clock {
+      text-align: center;
+      font-size: 1.3em;
+    }
   }
   section#players-section {
     // background-color: yellow;
