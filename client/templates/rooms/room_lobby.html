@@ -85,6 +85,9 @@
       <div class="player-item clearfix">
         <div class="player-data">
           <p class="{{playerState}} player-name">{{name}}</p>
+          {{#if isRoomHost}}
+            <p class="revealed-role">HOST</p>
+          {{/if}}
           {{#if canSeeOtherRoles}}
             <p class="revealed-role">{{role}}</p>
           {{/if}}

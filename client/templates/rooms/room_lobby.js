@@ -175,6 +175,10 @@ Template.playersList.helpers({
       easyMode = Rooms.findOne(this.roomId).mode === 'EASY';
     }
     return easyMode
+  },
+  isRoomHost: function() {
+    var r = Rooms.findOne(this.roomId);
+    return r.hostPlayerId === this._id && r.state === 'WAITING';
   }
 });
 
