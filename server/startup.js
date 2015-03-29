@@ -320,6 +320,30 @@ Meteor.startup(function() {
       });
     }
 
+    Rooms.update(testRoom._id, {$set: {state: 'WAITING'}}, null, function(err) {
+      if (!err) {
+        console.log('Changed ' + testRoom.name + ' room state to WAITING');
+      }
+    });
+    Rooms.update(testRoom._id, {$set: {goodCount: 6}});
+    Rooms.update(testRoom._id, {$set: {evilCount: 2}});
+    Rooms.update(testRoom._id, {$set: {livingPlayers: 8}});
+    Rooms.update(testRoom._id, {$set: {phase: null}});
+    Rooms.update(testRoom._id, {$set: {round: null}});
+    Rooms.update(testRoom._id, {$set: {startTime: null}});
+    Rooms.update(testRoom._id, {$set: {seconds: 0}});
+    Rooms.update(testRoom._id, {$set: {message: null}});
+    Rooms.update(testRoom._id, {$set: {mode: 'EASY'}});
+    Rooms.update(testRoom._id, {$set: {playerKilled: false}});
+    Rooms.update(testRoom._id, {$set: {playerScanned: false}});
+    Rooms.update(testRoom._id, {$set: {minAccusedVotes: 2}});
+    Rooms.update(testRoom._id, {$set: {playerAccusedId: null}});
+    Rooms.update(testRoom._id, {$set: {yesLynchVotes: 0}});
+    Rooms.update(testRoom._id, {$set: {noLynchVotes: 0}});
+    Rooms.update(testRoom._id, {$set: {abstainLynchVotes: 0}});
+    Rooms.update(testRoom._id, {$set: {hostPlayerId: null}});
+    Rooms.update(testRoom._id, {$set: {suicidalPlayers: []}});
+
     // All rooms cleanup
     Rooms.find().forEach(function(room) {
       if (room.name !== 'Hello') {

@@ -60,6 +60,11 @@ body {
       text-align: right;
     }
   }
+  .access-denied {
+    a.site-title {
+      padding: 0;
+    }
+  }
 }
 
 .content-block {
