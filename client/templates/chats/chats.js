@@ -1,13 +1,16 @@
-// Source: https://github.com/arunoda/meteor-streams/blob/master/examples/chat/client/chat.js
-chatStream = new Meteor.Stream('chat');
 chatCollection = new Meteor.Collection(null);
 
-chatStream.on('chat', function(message) {
-  chatCollection.insert({
-    userId: this.userId,
-    subscriptionId: this.subscriptionId,
-    message: message
-  });
+// When an emitted message is received, add it to the collection
+chatStream.on('message', function(message) {
+  var currentPlayer = Players.findOne({userId: Meteor.userId()});
+  var player = Players.findOne({userId: this.userId});
+  if (currentPlayer.roomId === player.roomId) {
+    chatCollection.insert({
+      userId: this.userId,
+      subscriptionId: this.subscriptionId,
+      message: message
+    });
+  }
 });
 
 Template.chatBox.helpers({
@@ -15,9 +18,9 @@ Template.chatBox.helpers({
     return chatCollection.find();
   },
   "user": function() {
-    if(this.userId == 'me') {
+    if (this.userId == 'me') {
       return "me";
-    } else if(this.userId) {
+    } else if (this.userId) {
       var username = Session.get('user-' + this.userId);
       if(username) {
         return username;
@@ -36,32 +39,31 @@ var subscribedUsers = {};
 
 Template.chatBox.events({
   "click #send-message": function() {
-    var message = $('#chat-message').val();
-    chatCollection.insert({
-      userId: 'me',
-      message: message
-    });
-    chatStream.emit('chat', message);
-    $('#chat-message').val('');
+    sendMessage();
   },
   "keyup #chat-message": function(e) {
     if (e.keyCode === 13) {
-      var message = $('#chat-message').val();
-      chatCollection.insert({
-        userId: 'me',
-        message: message
-      });
-      chatStream.emit('chat', message);
-      $('#chat-message').val('');
+      sendMessage();
     }
   }
 });
 
+function sendMessage() {
+  var message = $('#chat-message').val();
+  chatCollection.insert({
+    userId: 'me',
+    message: message
+  });
+  // Emit a message for the receiver to capture
+  chatStream.emit('message', message);
+  $('#chat-message').val('');
+}
+
 function getUsername(id) {
   Meteor.subscribe('user-info', id);
-  Deps.autorun(function() {
+  Tracker.autorun(function() {
     var user = Meteor.users.findOne(id);
-    if(user) {
+    if (user) {
       Session.set('user-' + id, user.username);
     }
   });
