@@ -1,13 +1,21 @@
 @import "partials/settings";
 @import "partials/mixins";
-@import url("http://fonts.googleapis.com/css?family=Rock+Salt|Special+Elite|PT+Mono|Alegreya+SC:400,400italic,700,700italic,900,900italic");
+@import url("http://fonts.googleapis.com/css?family=Special+Elite");
+@import url("http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic|Philosopher:400,700,400italic,700italic|Quicksand:300,400,700|Muli:300,400,300italic,400italic|Merriweather+Sans:400,300,300italic,400italic,700,700italic,800,800italic|Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800|Open+Sans+Condensed:300,300italic,700|Quattrocento+Sans:400,400italic,700,700italic");
 @import ".meteor/local/build/programs/server/assets/packages/reywood_bootstrap3-sass/bootstrap";
 
 // Fonts:
-// font-family: 'Rock Salt', cursive;
 // font-family: 'Special Elite', cursive;
-// font-family: 'PT Mono', cursive;
-// font-family: 'Alegreya SC', serif;
+//
+// TODO: Remove all sans-serif fonts except one:
+// font-family: 'Lato', sans-serif;
+// font-family: 'Muli', sans-serif;
+// font-family: 'Quicksand', sans-serif;
+// font-family: 'Muli', sans-serif;
+// font-family: 'Merriweather Sans', sans-serif;
+// font-family: 'Open Sans', sans-serif;
+// font-family: 'Open Sans Condensed', sans-serif;
+// font-family: 'Quattrocento Sans', sans-serif;
 
 body {
   background: #EAEAEA;
@@ -26,35 +34,46 @@ body {
   a.site-title {
     // background-color: pink;
     text-decoration: none;
-    font-family: 'Rock Salt', cursive;
+    font-family: 'Special Elite', cursive;
     @include font_settings(1.3em, black, 400, none, 2px, 1.5em);
     padding: 0 10px;
   }
   a.page-title {
     // background-color: pink;
     text-decoration: none;
-    font-family: 'Rock Salt', cursive;
+    font-family: 'Special Elite', cursive;
     @include font_settings(1em, black, 400, none, 2px, 1.5em);
   }
   .room-lobby-header {
     // background-color: yellow;
-    h3.room-title {
-      // background-color: orange;
-      float: left;
-      width: 70%;
-      margin: 0;
-      padding: 0 12px;
-      word-wrap: break-word;
-      @include font_settings(1.3em, black, 400, none, 2px, 2em);
-    }
     #leave-room-div {
       // background-color: pink;
       float: left;
       width: 15%;
       text-align: left;
     }
+    #game-header-div {
+      // background-color: orange;
+      float: left;
+      width: 70%;
+      margin: 0;
+      padding: 0 12px;
+      p.room-title {
+        // background-color: lightblue;
+        font-family: 'Muli', sans-serif;
+        word-wrap: break-word;
+        margin: 0;
+        padding: 0;
+        margin-bottom: 4px;
+        @include font_settings(0.6em, black, 400, uppercase, 1px, 1.5em);
+      }
+      p.game-clock {
+        text-align: center;
+        font-size: 1.5em;
+      }
+    }
     #game-menu-div {
-      // background-color: tan;
+      background-color: tan;
       float: left;
       width: 15%;
       text-align: right;
@@ -78,14 +97,14 @@ body {
     ul.login-buttons {
       // background-color: lightblue;
       margin-top: 40px;
-      font-family: 'PT Mono', cursive;
+      font-family: 'Muli', sans-serif;
     }
   }
   section#menu-section {
     // background-color: yellow;
     margin-top: 30px;
     text-align: center;
-    font-family: 'PT Mono', cursive;
+    font-family: 'Muli', sans-serif;
     p {
       margin-bottom: 24px;
       &:last-of-type {
@@ -105,7 +124,7 @@ body {
       margin-bottom: 32px;
     }
     .rooms-list {
-      font-family: 'PT Mono', cursive;
+      font-family: 'Muli', sans-serif;
       .room-item {
         margin-bottom: 14px;
         &:last-of-type {
@@ -127,18 +146,49 @@ body {
         font-size: 1.3em;
       }
       button#host-game-create {
-        font-family: 'PT Mono', cursive;
+        font-family: 'Muli', sans-serif;
         font-size: 1.3em;
       }
     }
   }
   section#game-status {
     // background-color: orange;
-    margin-top: 20px;
-    height: 87px;
-    p.game-clock {
-      text-align: center;
-      font-size: 1.3em;
+    // margin-top: 20px;
+    // height: 87px;
+    text-align: center;
+    .current-role-div {
+      // background-color: yellow;
+      border-top: 1px solid #B1ACAC;
+      border-bottom: 1px solid #B1ACAC;
+      margin: 0;
+      padding: 4px 0;
+      p.current-role-toggle {
+        margin: 0;
+        padding: 0;
+        font-family: 'Muli', sans-serif;
+        @include font_settings(0.8em, black, 400, uppercase, 1px, 1.7em);
+      }
+      p.current-role-intro {
+        // background-color: tan;
+        margin: 0;
+        padding: 0;
+        font-family: 'Muli', sans-serif;
+        @include font_settings(0.8em, black, 400, uppercase, 1px, 1.7em);
+        margin-bottom: 4px;
+      }
+      p#current-role {
+        // background-color: lightblue;
+        margin: 0;
+        padding: 0;
+        @include font_settings(1.7em, black, 400, uppercase, 4px, 0.9em);
+      }
+    }
+    p.server-message {
+      // background-color: orange;
+      text-align: left;
+      margin: 0;
+      padding: 0;
+      margin-top: 10px;
     }
   }
   section#players-section {
@@ -162,6 +212,7 @@ body {
           margin: 0;
           padding: 0;
           &.player-name {
+            // background-color: yellow;
             word-wrap: break-word;
             font-size: 1.1em;
           }
@@ -173,19 +224,27 @@ body {
             text-decoration: line-through;
           }
           &.revealed-role {
-            font-family: 'Alegreya SC', serif;
+            font-family: 'Muli', sans-serif;
             text-transform: lowercase;
           }
+        }
+      }
+      .player-accused-votes {
+        // background-color: tan;
+        float: left;
+        width: 15%;
+        text-align: center;
+        padding: 10px 0;
+        p.accused-votes {
+          margin: 0;
+          padding: 0;
         }
       }
       .player-actions {
         // background-color: pink;
         float: left;
-        width: 30%;
+        width: 15%;
         text-align: right;
-        span.accused-votes {
-          margin-right: 10px;
-        }
       }
       &:hover {
         background-color: #EAEAEA;
@@ -206,7 +265,7 @@ body {
       // background-color: orange;
       margin: 24px;
       button {
-        font-family: 'PT Mono', cursive;
+        font-family: 'Muli', sans-serif;
       }
     }
   }
@@ -215,7 +274,7 @@ body {
     margin-top: 10px;
     height: 251px;
     .chat-messages {
-      font-family: 'Alegreya SC', cursive;
+      font-family: 'Muli', sans-serif;
       background-color: #F8F8F8;
       border: 1px solid rgb(230, 230, 230);
       height: 217px;
@@ -223,7 +282,7 @@ body {
       overflow-y: auto;
     }
     .chat-controls {
-      font-family: 'PT Mono', cursive;
+      font-family: 'Muli', sans-serif;
       #chat-message {
         float: left;
         width: 80%;
@@ -236,7 +295,7 @@ body {
   }
   section#actions-section {
     // background-color: lightblue;
-    font-family: 'PT Mono', cursive;
+    font-family: 'Muli', sans-serif;
     margin-top: 22px;
     p {
       // background-color: yellow;

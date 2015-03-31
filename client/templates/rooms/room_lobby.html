@@ -7,9 +7,12 @@
             <div id="leave-room-div">
               <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default"><i class="fa fa-times"></i></a>
             </div>
-            <h3 class="room-title">{{name}}</h3>
+            <div id="game-header-div">
+              <p class="room-title">{{name}}</p>
+              <p class="game-clock"><i class="fa fa-clock-o fa-lg"></i>&nbsp;&nbsp;{{currentTime}}</p>
+            </div>
             <div id="game-menu-div">
-              <a href="#" id="game-menu" class="btn btn-default"><i class="fa fa-bars"></i></a>
+              <!-- <a href="#" id="game-menu" class="btn btn-default"><i class="fa fa-bars"></i></a> -->
             </div>
           </div>
         </div>
@@ -22,11 +25,13 @@
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
           <section id="game-status">
-            {{#if isPlaying}}
-              <!-- <p>Current State: {{currentState}}</p> -->
-              <!-- <p>Current Role: {{currentRole}}</p> -->
-              <p class="game-clock"><i class="fa fa-clock-o fa-lg"></i>&nbsp;&nbsp;{{currentTime}}</p>
-              <p>{{serverMessage}}</p>
+            {{#if isNotWaiting}}
+              <div class="current-role-div">
+                <p class="current-role-toggle">Show Role</p>
+                <p class="current-role-intro hide">You are a</p>
+                <p id="current-role" class="hide">{{currentRole}}</p>
+              </div>
+              <p class="server-message">{{serverMessage}}</p>
             {{/if}}
           </section>
         </div>
@@ -95,10 +100,12 @@
             <p class="revealed-role">{{scannedRole}}</p>
           {{/if}}
         </div>
-        <div class="player-actions">
+        <div class="player-accused-votes">
           {{#if isAccused}}
-            <span class="accused-votes">{{accusedVotes}}</span>
+            <p class="accused-votes">{{accusedVotes}}</p>
           {{/if}}
+        </div>
+        <div class="player-actions">
           {{#if showKillButton}}
             <button id="kill-player" class="btn btn-default"><i class="fa fa-check-square-o"></i></button>
           {{/if}}

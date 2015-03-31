@@ -26,6 +26,9 @@ Template.roomLobby.helpers({
   isPlaying: function() {
     return Rooms.findOne({name: this.name}).state === 'PLAYING';
   },
+  isNotWaiting: function() {
+    return Rooms.findOne({name: this.name}).state !== 'WAITING';
+  },
   isNightPhase: function() {
     return Rooms.findOne({name: this.name}).phase === 'NIGHT';
   },
@@ -55,9 +58,11 @@ Template.roomLobby.events({
   'click #leave-room': function() {
     Meteor.call('playerLeaveRoom', this._id);
   },
-  // 'click #game-menu': function() {
-
-  // },
+  'click .current-role-div': function() {
+    $('p.current-role-toggle').toggleClass('hide');
+    $('p.current-role-intro').toggleClass('hide');
+    $('p#current-role').toggleClass('hide');
+  },
   'click #players-list': function() {
     if (Session.get('showPlayersList')) {
       Session.set('showPlayersList', false);
