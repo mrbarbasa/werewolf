@@ -161,7 +161,7 @@ Meteor.startup(function() {
     var room = Rooms.findOne(r._id); // Must be queried again for updated good/evil count
     if (room.evilCount >= room.goodCount) {
       Rooms.update(r._id, {$set: {state: 'FINISHED'}});
-      Rooms.update(r._id, {$set: {message: 'Evil has won in room ' + r.name}});
+      Rooms.update(r._id, {$set: {message: 'Evil has eradicated good!'}});
       console.log('Changed ' + r.name + ' room state to FINISHED');
       console.log('Evil has won in room ' + r.name);
       // TODO: Broadcast message to room
@@ -169,7 +169,7 @@ Meteor.startup(function() {
     }
     else if (room.evilCount === 0) {
       Rooms.update(r._id, {$set: {state: 'FINISHED'}});
-      Rooms.update(r._id, {$set: {message: 'Good has won in room ' + r.name}});
+      Rooms.update(r._id, {$set: {message: 'Good has triumphed over evil!'}});
       console.log('Changed ' + r.name + ' room state to FINISHED');
       console.log('Good has won in room ' + r.name);
       // TODO: Broadcast message to room
