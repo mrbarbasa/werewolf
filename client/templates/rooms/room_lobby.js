@@ -29,6 +29,9 @@ Template.roomLobby.helpers({
   isNotWaiting: function() {
     return Rooms.findOne({name: this.name}).state !== 'WAITING';
   },
+  isFinished: function() {
+    return Rooms.findOne({name: this.name}).state === 'FINISHED';
+  },
   isNightPhase: function() {
     return Rooms.findOne({name: this.name}).phase === 'NIGHT';
   },
@@ -55,7 +58,7 @@ Template.roomLobby.events({
   'click #game-cleanup': function() {
     Meteor.call('gameCleanup', this);
   },
-  'click #leave-room': function() {
+  'click .leave-room': function() {
     Meteor.call('playerLeaveRoom', this._id);
   },
   'click .current-role-div': function() {

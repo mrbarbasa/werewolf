@@ -5,7 +5,7 @@
         <div class="col-sm-6 col-sm-offset-3">
           <div class="room-lobby-header clearfix">
             <div id="leave-room-div">
-              <a href="{{pathFor 'roomsList'}}" id="leave-room" class="btn btn-default"><i class="fa fa-times"></i></a>
+              <a href="{{pathFor 'roomsList'}}" class="leave-room btn btn-default"><i class="fa fa-times"></i></a>
             </div>
             <div id="game-header-div">
               <p class="room-title">{{name}}</p>
@@ -27,9 +27,13 @@
           <section id="game-status">
             {{#if isNotWaiting}}
               <div class="current-role-div">
-                <p class="current-role-toggle">Show Role</p>
-                <p class="current-role-intro hide">You are a</p>
-                <p id="current-role" class="hide">{{currentRole}}</p>
+                {{#if isFinished}}
+                  <p class="leave-room-game-over"><a href="{{pathFor 'roomsList'}}" class="leave-room">Leave Room</a></p>
+                {{else}}
+                  <p class="current-role-toggle">Show Role</p>
+                  <p class="current-role-intro hide">You are a</p>
+                  <p id="current-role" class="hide">{{currentRole}}</p>
+                {{/if}}
               </div>
               <p class="server-message">{{serverMessage}}</p>
             {{/if}}

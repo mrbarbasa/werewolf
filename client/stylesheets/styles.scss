@@ -162,6 +162,17 @@ body {
       border-bottom: 1px solid #B1ACAC;
       margin: 0;
       padding: 4px 0;
+      p.leave-room-game-over {
+        margin: 0;
+        padding: 0;
+        font-family: 'Muli', sans-serif;
+        @include font_settings(0.8em, black, 400, uppercase, 1px, 1.7em);
+        a.leave-room {
+          font-family: 'Muli', sans-serif;
+          text-decoration: none;
+          color: black;
+        }
+      }
       p.current-role-toggle {
         margin: 0;
         padding: 0;
@@ -225,7 +236,9 @@ body {
           }
           &.revealed-role {
             font-family: 'Muli', sans-serif;
-            text-transform: lowercase;
+            margin: 0;
+            padding: 0;
+            @include font_settings(0.6em, black, 400, uppercase, 1px, 1.3em);
           }
         }
       }
