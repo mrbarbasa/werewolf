@@ -66,12 +66,15 @@ Template.roomLobby.events({
     $('p.current-role-intro').toggleClass('hide');
     $('p#current-role').toggleClass('hide');
   },
-  'click #players-list': function() {
+  'click #players-tab': function() {
+    if (!Session.get('showPlayersList')) {
+      Session.set('showPlayersList', true);
+      Session.set('showVoteButtons', false);
+    }
+  },
+  'click #chat-tab': function() {
     if (Session.get('showPlayersList')) {
       Session.set('showPlayersList', false);
-    }
-    else {
-      Session.set('showPlayersList', true);
       Session.set('showVoteButtons', false);
     }
   },

@@ -28,7 +28,7 @@
             {{#if isNotWaiting}}
               <div class="current-role-div">
                 {{#if isFinished}}
-                  <p class="leave-room-game-over"><a href="{{pathFor 'roomsList'}}" class="leave-room">Leave Room</a></p>
+                  <p class="action-button"><a href="{{pathFor 'roomsList'}}" class="leave-room">Leave Room</a></p>
                 {{else}}
                   <p class="current-role-toggle">Show Role</p>
                   <p class="current-role-intro hide">You are a</p>
@@ -37,6 +37,32 @@
               </div>
               <p class="server-message">{{serverMessage}}</p>
             {{/if}}
+            {{#if canStartGame}}
+              <div class="current-role-div">
+                <p class="action-button"><a href="#" id="start-game">Start Game</a></p>
+              </div>
+            {{/if}}
+          </section>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+          <section id="actions-section" class="clearfix">
+            <p>
+              <a href="#" id="players-tab">Players</a>
+              {{#if isPlaying}}
+                {{#if isDayPhase}}
+                  {{#if isJudgmentRound}}
+                    <a href="#" id="vote-toggle">Vote</a>
+                  {{/if}}
+                {{/if}}
+              {{/if}}
+            </p>
+            <p>
+              <a href="#" id="chat-tab">Chat</a>
+              <!-- TODO: Remove this game cleanup button later -->
+              <a href="#" id="game-cleanup"><i class="fa fa-refresh"></i></a>
+            </p>
           </section>
         </div>
       </div>
@@ -60,28 +86,6 @@
               {{> chatBox}}
             {{/if}}
           {{/if}}
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6 col-sm-offset-3">
-          <section id="actions-section" class="clearfix">
-            <p>
-              <button type="button" id="players-list" class="btn btn-default">Players</button>
-              <!-- TODO: Remove this game cleanup button later -->
-              <a href="#" id="game-cleanup" class="btn btn-default"><i class="fa fa-refresh"></i></a></p>
-            <p>
-              {{#if canStartGame}}
-                <button type="button" id="start-game" class="btn btn-default">Start Game</button>
-              {{/if}}
-              {{#if isPlaying}}
-                {{#if isDayPhase}}
-                  {{#if isJudgmentRound}}
-                    <button type="button" id="vote-toggle" class="btn btn-default">Vote</button>
-                  {{/if}}
-                {{/if}}
-              {{/if}}
-            </p>
-          </section>
         </div>
       </div>
     </div>
