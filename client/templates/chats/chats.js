@@ -1,8 +1,11 @@
 Template.chatBox.helpers({
-  "messages": function() {
+  messages: function() {
     var currentPlayer = Players.findOne({userId: Meteor.userId()});
     var chat = Chats.findOne({roomId: currentPlayer.roomId});
     return chat ? chat.messages : [];
+  },
+  notServer: function() {
+    return this.sender !== 'SERVER';
   }
 });
 

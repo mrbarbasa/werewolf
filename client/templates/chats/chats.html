@@ -3,7 +3,7 @@
     <div class="chat-messages">
       {{#each messages}}
         <div>
-          <b>{{sender}}:</b> {{message}}
+          {{#if notServer}}<b>{{sender}}: </b>{{/if}}<span>{{message}}</span>
         </div>
       {{/each}}
     </div>

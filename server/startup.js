@@ -23,26 +23,24 @@ Meteor.startup(function() {
   Players.update({name: 'one'}, {$set: {isHost: true}});
 
   function sendServerMessage(roomId, message) {
-    var chat = Chats.findOne({roomId: roomId});
     var msg = {
-      _id: chat.messages.length + 1,
       sender: 'SERVER',
       message: message,
-      filter: 'SERVER'
+      filter: 'SERVER',
+      timestamp: new Date()
     };
-    Chats.update(chat._id, {$addToSet: {messages: msg}});
+    Chats.update({roomId: roomId}, {$addToSet: {messages: msg}});
   }
 
   function sendChatMessage(message, filter) {
     var currentPlayer = Players.findOne({name: Meteor.user().username});
-    var chat = Chats.findOne({roomId: currentPlayer.roomId});
     var msg = {
-      _id: chat.messages.length + 1,
       sender: currentPlayer.name,
       message: message,
-      filter: filter
+      filter: filter,
+      timestamp: new Date()
     };
-    Chats.update(chat._id, {$addToSet: {messages: msg}});
+    Chats.update({roomId: currentPlayer.roomId}, {$addToSet: {messages: msg}});
   }
 
   function getServerTime(r) {
@@ -497,6 +495,14 @@ Meteor.startup(function() {
           Players.update(currentPlayer._id, {$set: {hasBeenScanned: false}});
         }
 
+        if (status === 'DISCONNECTED') {
+          console.log('Removed disconnected player ' + currentPlayer.name + ' from room ' + r.name);
+        }
+        else {
+          console.log(currentPlayer.name + ' left room ' + r.name);
+        }
+        sendServerMessage(r._id, currentPlayer.name + ' left the room');
+
         // If the host leaves the room
         if (currentPlayer.isHost) {
           Players.update(currentPlayer._id, {$set: {isHost: false}});
@@ -508,6 +514,7 @@ Meteor.startup(function() {
               if (!err) {
                 Players.update(remainingPlayers[0]._id, {$set: {isHost: true}});
                 console.log('Set player ' + remainingPlayers[0].name + ' as new host of room ' + r.name);
+                sendServerMessage(r._id, remainingPlayers[0].name + ' is now the host');
               }
             });
           }
@@ -515,14 +522,6 @@ Meteor.startup(function() {
             Rooms.update(r._id, {$set: {hostPlayerId: null}});
           }
         }
-
-        if (status === 'DISCONNECTED') {
-          console.log('Removed disconnected player ' + currentPlayer.name + ' from room ' + r.name);
-        }
-        else {
-          console.log(currentPlayer.name + ' left room ' + r.name);
-        }
-        sendServerMessage(r._id, currentPlayer.name + ' left the room');
       }
       else {
         console.log('Error leaving room ' + r.name);
@@ -600,6 +599,7 @@ Meteor.startup(function() {
         if (!err) {
           Players.update(currentPlayer._id, {$set: {accusedPlayerId: player._id}});
           console.log('Successfully accused player ' + player.name);
+          sendServerMessage(room._id, currentPlayer.name + ' accused ' + player.name);
           return true;
         }
         else {
@@ -617,6 +617,7 @@ Meteor.startup(function() {
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {yesLynchVotes: room.yesLynchVotes + 1}});
       Players.update(currentPlayer._id, {$set: {hasVoted: true}});
+      sendServerMessage(room._id, currentPlayer.name + ' voted guilty');
     }
   }
 
@@ -626,6 +627,7 @@ Meteor.startup(function() {
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {noLynchVotes: room.noLynchVotes + 1}});
       Players.update(currentPlayer._id, {$set: {hasVoted: true}});
+      sendServerMessage(room._id, currentPlayer.name + ' voted innocent');
     }
   }
 
@@ -635,6 +637,7 @@ Meteor.startup(function() {
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {abstainLynchVotes: room.abstainLynchVotes + 1}});
       Players.update(currentPlayer._id, {$set: {hasVoted: true}});
+      sendServerMessage(room._id, currentPlayer.name + ' abstained');
     }
   }
 
