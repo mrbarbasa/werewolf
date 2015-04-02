@@ -3,6 +3,7 @@ Meteor.startup(function() {
   // To call these methods: Meteor.call('getServerTime');
   // These methods can be called remotely by clients
   Meteor.methods({
+    sendChatMessage: sendChatMessage,
     getServerTime: getServerTime,
     executeUserAction: executeUserAction,
     roomCreate: roomCreate,
@@ -20,6 +21,29 @@ Meteor.startup(function() {
 
   // TODO: For testing only
   Players.update({name: 'one'}, {$set: {isHost: true}});
+
+  function sendServerMessage(roomId, message) {
+    var chat = Chats.findOne({roomId: roomId});
+    var msg = {
+      _id: chat.messages.length + 1,
+      sender: 'SERVER',
+      message: message,
+      filter: 'SERVER'
+    };
+    Chats.update(chat._id, {$addToSet: {messages: msg}});
+  }
+
+  function sendChatMessage(message, filter) {
+    var currentPlayer = Players.findOne({name: Meteor.user().username});
+    var chat = Chats.findOne({roomId: currentPlayer.roomId});
+    var msg = {
+      _id: chat.messages.length + 1,
+      sender: currentPlayer.name,
+      message: message,
+      filter: filter
+    };
+    Chats.update(chat._id, {$addToSet: {messages: msg}});
+  }
 
   function getServerTime(r) {
     var timeStart = Rooms.findOne(r._id).startTime;
@@ -161,18 +185,16 @@ Meteor.startup(function() {
     var room = Rooms.findOne(r._id); // Must be queried again for updated good/evil count
     if (room.evilCount >= room.goodCount) {
       Rooms.update(r._id, {$set: {state: 'FINISHED'}});
-      Rooms.update(r._id, {$set: {message: 'Evil has eradicated good!'}});
+      Rooms.update(r._id, {$set: {message: 'Werewolves win!'}});
       console.log('Changed ' + r.name + ' room state to FINISHED');
       console.log('Evil has won in room ' + r.name);
-      // TODO: Broadcast message to room
       return true;
     }
     else if (room.evilCount === 0) {
       Rooms.update(r._id, {$set: {state: 'FINISHED'}});
-      Rooms.update(r._id, {$set: {message: 'Good has triumphed over evil!'}});
+      Rooms.update(r._id, {$set: {message: 'Villagers win!'}});
       console.log('Changed ' + r.name + ' room state to FINISHED');
       console.log('Good has won in room ' + r.name);
-      // TODO: Broadcast message to room
       return true;
     }
     else {
@@ -309,6 +331,7 @@ Meteor.startup(function() {
     // Hello room cleanup
     var testRoom = Rooms.findOne({name: 'Hello'});
     Rooms.update(testRoom._id, {$set: {players: []}});
+    Chats.update({roomId: testRoom._id}, {$set: {messages: []}});
     var playerNames = ['three', 'four', 'five', 'six', 'seven', 'eight'];
     var currentPlayer;
     for (var i = 0; i < playerNames.length; i++) {
@@ -348,6 +371,7 @@ Meteor.startup(function() {
     Rooms.find().forEach(function(room) {
       if (room.name !== 'Hello') {
         Rooms.update(room._id, {$set: {players: []}});
+        Chats.update({roomId: room._id}, {$set: {messages: []}});
       }
     });
     //--- END: For testing purposes only
@@ -389,6 +413,18 @@ Meteor.startup(function() {
     var username = Meteor.user().username;
     var currentPlayer = Players.findOne({name: username});
 
+
+    // TODO: Move to roomCreate method later
+    var chat = Chats.findOne({roomId: r._id});
+    var chatId = null;
+    if (chat) {
+      chatId = chat._id;
+    }
+    else {
+      chatId = Chats.insert(new Chat(r._id, r.name));
+    }
+
+
     // TODO: For testing only
     if (currentPlayer.name === 'one') {
       Players.update(currentPlayer._id, {$set: {isHost: true}});
@@ -408,7 +444,7 @@ Meteor.startup(function() {
           }
 
           console.log(currentPlayer.name + ' joined room ' + r.name);
-          // TODO: Broadcast a message to the room that player has joined
+          sendServerMessage(r._id, currentPlayer.name + ' joined the room');
         }
         else {
           console.log('Error joining room ' + r.name);
@@ -486,7 +522,7 @@ Meteor.startup(function() {
         else {
           console.log(currentPlayer.name + ' left room ' + r.name);
         }
-        // TODO: Broadcast a message to the room that player has left
+        sendServerMessage(r._id, currentPlayer.name + ' left the room');
       }
       else {
         console.log('Error leaving room ' + r.name);

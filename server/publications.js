@@ -13,3 +13,7 @@ Meteor.publish('rooms', function() {
 Meteor.publish('roles', function() {
   return Roles.find();
 });
+
+Meteor.publish('chats', function() {
+  return Chats.find();
+});
