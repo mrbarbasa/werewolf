@@ -38,7 +38,8 @@ Meteor.startup(function() {
       sender: currentPlayer.name,
       message: message,
       filter: filter,
-      timestamp: new Date()
+      timestamp: new Date(),
+      playerId: currentPlayer._id
     };
     Chats.update({roomId: currentPlayer.roomId}, {$addToSet: {messages: msg}});
   }
