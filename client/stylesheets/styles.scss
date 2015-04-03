@@ -162,6 +162,7 @@ body {
       border-bottom: 1px solid #B1ACAC;
       margin: 0;
       padding: 4px 0;
+      cursor: pointer;
       p.action-button {
         margin: 0;
         padding: 0;
@@ -315,6 +316,13 @@ body {
       #send-message {
         float: left;
         width: 20%;
+      }
+      .may-send, .is-defendant {
+        background-color: #85C2EE;
+      }
+      .not-defendant {
+        opacity: 0.65;
+        cursor: not-allowed;
       }
     }
   }

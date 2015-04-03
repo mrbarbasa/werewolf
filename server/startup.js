@@ -136,6 +136,7 @@ Meteor.startup(function() {
           Rooms.update(r._id, {$set: {message: 'The villager on trial may speak in his or her defense.'}});
           Rooms.update(r._id, {$set: {round: 'DEFENSE'}});
           Rooms.update(r._id, {$set: {playerAccusedId: playerAccused._id}});
+          sendServerMessage(r._id, 'Only ' + playerAccused.name + ' may speak at this time');
         }
         else { // Required number of votes is not met, so no one goes on trial for this day
           // DAY phase, dusk: 5 seconds, from 151 to 155

@@ -13,6 +13,15 @@ Template.chatBox.helpers({
     // Dead players should see all messages
     // Living players should not be able to see dead players' messages
     return !currentPlayer.isAlive || (currentPlayer.isAlive && this.filter === 'LIVING');
+  },
+  isDefendant: function() {
+    var currentPlayer = Players.findOne({userId: Meteor.userId()});
+    var room = Rooms.findOne(currentPlayer.roomId);
+    var result = 'may-send';
+    if (room && room.round === 'DEFENSE') {
+      result = currentPlayer._id === room.playerAccusedId ? 'is-defendant' : 'not-defendant';
+    }
+    return result;
   }
 });
 
@@ -21,8 +30,15 @@ Template.chatBox.events({
     var message = $('#chat-message').val();
     if (message) {
       var p = Players.findOne({userId: Meteor.userId()});
-      Meteor.call('sendChatMessage', message, p.isAlive ? 'LIVING' : 'DEAD');
-      $('#chat-message').val('');
+      var room = Rooms.findOne(p.roomId);
+      var maySend = true;
+      if (room && room.round === 'DEFENSE') {
+        maySend = p._id === room.playerAccusedId ? true : false;
+      }
+      if (maySend) {
+        Meteor.call('sendChatMessage', message, p.isAlive ? 'LIVING' : 'DEAD');
+        $('#chat-message').val('');
+      }
     }
   },
   "keyup #chat-message": function(e) {
@@ -30,8 +46,15 @@ Template.chatBox.events({
       var message = $('#chat-message').val();
       if (message) {
         var p = Players.findOne({userId: Meteor.userId()});
-        Meteor.call('sendChatMessage', message, p.isAlive ? 'LIVING' : 'DEAD');
-        $('#chat-message').val('');
+        var room = Rooms.findOne(p.roomId);
+        var maySend = true;
+        if (room && room.round === 'DEFENSE') {
+          maySend = p._id === room.playerAccusedId ? true : false;
+        }
+        if (maySend) {
+          Meteor.call('sendChatMessage', message, p.isAlive ? 'LIVING' : 'DEAD');
+          $('#chat-message').val('');
+        }
       }
     }
   }
