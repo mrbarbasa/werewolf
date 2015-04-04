@@ -11,3 +11,11 @@ Accounts.onCreateUser(function(options, user) {
 
   return user;
 });
+
+Accounts.validateNewUser(function(user) {
+  if (user.username && user.username.length > 20) {
+    throw new Meteor.Error(403, 'Username cannot exceed 20 characters');
+  }
+
+  return true;
+});
