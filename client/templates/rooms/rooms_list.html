@@ -6,13 +6,18 @@
   <div class="content-block">
     <div class="container">
       <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-4 col-sm-offset-4">
           <section id="rooms-section">
             <h3>Select a room to join</h3>
             <div class="rooms-list">
               {{#each rooms}}
                 <div class="room-item">
-                  <p><a href="{{pathFor 'roomLobby'}}" class="enter-room btn btn-default">{{name}}</a></p>
+                  <p>
+                    <a href="{{pathFor 'roomLobby'}}" class="enter-room clearfix btn btn-default">
+                      <span class="room-players">{{players.length}}/{{maxPlayers}}</span>
+                      <span class="room-name">{{name}}</span>
+                    </a>
+                  </p>
                 </div>
               {{/each}}
             </div>

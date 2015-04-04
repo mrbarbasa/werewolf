@@ -127,11 +127,31 @@ body {
       font-family: 'Muli', sans-serif;
       .room-item {
         margin-bottom: 14px;
+        // background-color: tan;
         &:last-of-type {
           margin-bottom: 0;
         }
-        a {
-          font-size: 1.1em;
+        p {
+          // background-color: tan;
+          a.enter-room {
+            // background-color: yellow;
+            font-size: 1.1em;
+            display: block;
+            span.room-players {
+              // background-color: lightblue;
+              float: left;
+              width: 40%;
+              text-align: left;
+              padding: 10px;
+            }
+            span.room-name {
+              // background-color: orange;
+              float: left;
+              width: 60%;
+              text-align: left;
+              padding: 10px;
+            }
+          }
         }
       }
     }
