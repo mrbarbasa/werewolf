@@ -5,10 +5,10 @@
         <div>
           {{#if notServer}}
             {{#if canSeeMessage}}
-              <b>{{sender}}: </b><span>{{message}}</span>
+              <span class="{{playerMessageStyle}}"><b>{{sender}}:&nbsp;&nbsp;&nbsp;</b><span>{{message}}</span></span>
             {{/if}}
           {{else}}
-            <span>{{message}}</span>
+            <span class="{{serverMessageStyle}}">{{message}}</span>
           {{/if}}
         </div>
       {{/each}}

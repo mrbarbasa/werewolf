@@ -343,6 +343,36 @@ body {
       height: 240px; // was 217px
       padding: 10px 15px;
       overflow-y: auto;
+      .living-player-message {
+        color: #666666;
+      }
+      .dead-player-message {
+        color: #DF9C98;
+      }
+      .server-message {
+        color: #4287AF;
+      }
+      .defense-message {
+        color: #FF820B;
+      }
+      .accused-message {
+        color: #8554E6;
+      }
+      .innocent-message {
+        color: #34A52D;
+      }
+      .guilty-message {
+        color: #FA4840;
+      }
+      .abstained-message {
+        color: #0D89FD;
+      }
+      .killed-message {
+        color: #BA0E0E;
+      }
+      .lynched-message {
+        color: #BA0E0E;
+      }
     }
     .chat-controls {
       font-family: 'Muli', sans-serif;

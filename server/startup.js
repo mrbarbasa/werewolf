@@ -21,11 +21,11 @@ Meteor.startup(function() {
   // TODO: For testing only
   Players.update({name: 'one'}, {$set: {isHost: true}});
 
-  function sendServerMessage(roomId, message) {
+  function sendServerMessage(roomId, message, filter) {
     var msg = {
       sender: 'SERVER',
       message: message,
-      filter: 'SERVER',
+      filter: filter || 'SERVER',
       timestamp: new Date()
     };
     Chats.update({roomId: roomId}, {$addToSet: {messages: msg}});
@@ -134,7 +134,7 @@ Meteor.startup(function() {
           Rooms.update(r._id, {$set: {message: 'The villager on trial may speak in his or her defense.'}});
           Rooms.update(r._id, {$set: {round: 'DEFENSE'}});
           Rooms.update(r._id, {$set: {playerAccusedId: playerAccused._id}});
-          sendServerMessage(r._id, 'Only ' + playerAccused.name + ' may speak at this time');
+          sendServerMessage(r._id, 'Only ' + playerAccused.name + ' may speak at this time', 'DEFENSE');
         }
         else { // Required number of votes is not met, so no one goes on trial for this day
           // DAY phase, dusk: 5 seconds, from 151 to 155
@@ -156,7 +156,7 @@ Meteor.startup(function() {
           p = Players.findOne(player._id);
           // If player has not voted after judgment round is over, player abstained
           if (!p.hasVoted) {
-            sendServerMessage(r._id, p.name + ' abstained');
+            sendServerMessage(r._id, p.name + ' abstained', 'ABSTAINED');
           }
 
           // Reset each player's accusations for the next day's accusation round
@@ -528,6 +528,7 @@ Meteor.startup(function() {
         if (!err) {
           Rooms.update(room._id, {$set: {playerKilled: true}});
           console.log('Successfully killed player ' + player.name);
+          sendServerMessage(room._id, player.name + ' is dead', 'KILLED');
 
           // Update the room's good/evil count
           var role = Roles.findOne({name: player.role});
@@ -591,7 +592,7 @@ Meteor.startup(function() {
         if (!err) {
           Players.update(currentPlayer._id, {$set: {accusedPlayerId: player._id}});
           console.log('Successfully accused player ' + player.name);
-          sendServerMessage(room._id, currentPlayer.name + ' accused ' + player.name);
+          sendServerMessage(room._id, currentPlayer.name + ' accused ' + player.name, 'ACCUSED');
           return true;
         }
         else {
@@ -609,7 +610,7 @@ Meteor.startup(function() {
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {yesLynchVotes: room.yesLynchVotes + 1}});
       Players.update(currentPlayer._id, {$set: {hasVoted: true}});
-      sendServerMessage(room._id, currentPlayer.name + ' voted guilty');
+      sendServerMessage(room._id, currentPlayer.name + ' voted guilty', 'GUILTY');
     }
   }
 
@@ -619,7 +620,7 @@ Meteor.startup(function() {
     if (!currentPlayer.hasVoted) {
       Rooms.update(room._id, {$set: {noLynchVotes: room.noLynchVotes + 1}});
       Players.update(currentPlayer._id, {$set: {hasVoted: true}});
-      sendServerMessage(room._id, currentPlayer.name + ' voted innocent');
+      sendServerMessage(room._id, currentPlayer.name + ' voted innocent', 'INNOCENT');
     }
   }
 
@@ -630,6 +631,7 @@ Meteor.startup(function() {
         if (!err) {
           Rooms.update(room._id, {$set: {playerKilled: true}});
           console.log('Successfully lynched player ' + player.name);
+          sendServerMessage(room._id, player.name + ' got lynched', 'LYNCHED');
 
           // Update the room's good/evil count
           var role = Roles.findOne({name: player.role});

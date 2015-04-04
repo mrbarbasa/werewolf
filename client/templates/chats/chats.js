@@ -22,6 +22,41 @@ Template.chatBox.helpers({
       result = currentPlayer._id === room.playerAccusedId ? 'is-defendant' : 'not-defendant';
     }
     return result;
+  },
+  playerMessageStyle: function() {
+    var currentPlayer = Players.findOne({userId: Meteor.userId()});
+    if (this.filter === 'LIVING') {
+      return 'living-player-message';
+    }
+    else if (this.filter === 'DEAD') {
+      return 'dead-player-message';
+    }
+  },
+  serverMessageStyle: function() {
+    if (this.filter === 'SERVER') {
+      return 'server-message';
+    }
+    else if (this.filter === 'DEFENSE') {
+      return 'defense-message';
+    }
+    else if (this.filter === 'ACCUSED') {
+      return 'accused-message';
+    }
+    else if (this.filter === 'INNOCENT') {
+      return 'innocent-message';
+    }
+    else if (this.filter === 'GUILTY') {
+      return 'guilty-message';
+    }
+    else if (this.filter === 'ABSTAINED') {
+      return 'abstained-message';
+    }
+    else if (this.filter === 'KILLED') {
+      return 'killed-message';
+    }
+    else if (this.filter === 'LYNCHED') {
+      return 'lynched-message';
+    }
   }
 });
 
