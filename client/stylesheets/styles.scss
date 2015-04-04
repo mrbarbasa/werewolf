@@ -51,6 +51,9 @@ body {
       float: left;
       width: 15%;
       text-align: left;
+      button#show-leave-room-modal {
+        font-family: 'Muli', sans-serif;
+      }
     }
     #game-header-div {
       // background-color: orange;
@@ -82,6 +85,12 @@ body {
   .access-denied {
     a.site-title {
       padding: 0;
+    }
+  }
+  #leave-room-modal {
+    font-family: 'Muli', sans-serif;
+    .modal-body {
+      font-size: 1.2em;
     }
   }
 }

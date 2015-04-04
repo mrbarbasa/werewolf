@@ -95,6 +95,10 @@ Template.roomLobby.events({
   },
   'click #vote-abstain': function() {
     Meteor.call('voteLynchAbstain', this);
+  },
+  'click #show-leave-room-modal': function(e) {
+    e.preventDefault();
+    $('#leave-room-modal').modal('show');
   }
 });
 
