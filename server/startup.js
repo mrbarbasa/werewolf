@@ -53,6 +53,11 @@ Meteor.startup(function() {
   }
 
   function roomCreate(roomName) {
+    // If an existing room by the given name already exists, do not create a new room
+    if (Rooms.findOne({name: roomName})) {
+      return false;
+    }
+
     var roomId = Rooms.insert(new Room(roomName));
     Chats.insert(new Chat(roomId, roomName));
     playerJoinRoom(Rooms.findOne(roomId), true);

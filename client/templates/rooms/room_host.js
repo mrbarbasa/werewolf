@@ -6,9 +6,14 @@ Template.roomHost.events({
         return alert('Could not create room');
       }
 
-      Router.go('roomLobby', {
-        _id: result._id
-      });
+      if (result) {
+        Router.go('roomLobby', {
+          _id: result._id
+        });
+      }
+      else {
+        alert('Name is already taken.  Please provide a different room name.');
+      }
     });
   }
 });
