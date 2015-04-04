@@ -15,7 +15,6 @@
 
 <template name="main">
   <header class="header-block">
-    {{> loginButtons}} <!-- TODO: Remove later after testing -->
     <h1><a class="site-title" href="{{pathFor 'main'}}">Werewolf</a></h1>
   </header>
 
@@ -36,11 +35,11 @@
               <p class="intro-text">Full of manic people</p>
               <p class="intro-text">Waking up each day</p>
               <p class="intro-text">No more</p>
-              <ul class="login-buttons nav navbar-nav">
-                {{> loginButtons}}
-              </ul>
             </section>
           {{/if}}
+          <ul class="login-buttons nav navbar-nav">
+            {{> loginButtons}}
+          </ul>
         </div>
       </div>
     </div>

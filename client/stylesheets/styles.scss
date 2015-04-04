@@ -97,16 +97,22 @@ body {
 
 .content-block {
   // background-color: tan;
+  ul.login-buttons {
+    // background-color: lightblue;
+    margin-top: 40px;
+    font-family: 'Muli', sans-serif;
+    li#login-dropdown-list {
+      a.dropdown-toggle {
+        text-align: center;
+      }
+    }
+  }
   section#intro-section {
     // background-color: lightblue;
     margin-top: 40px;
+    padding: 0 30px;
     p.intro-text {
       font-size: 1.5em;
-    }
-    ul.login-buttons {
-      // background-color: lightblue;
-      margin-top: 40px;
-      font-family: 'Muli', sans-serif;
     }
   }
   section#menu-section {
