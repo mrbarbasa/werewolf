@@ -7,8 +7,8 @@ Template.roomsList.helpers({
 Template.roomsList.events({
   'click a.enter-room': function(e) {
     var r = Rooms.findOne(this._id);
-    if (r.state === 'PLAYING' || r.state === 'FINISHED') {
-      alert('Cannot join a game in session');
+    if (r.players.length === r.maxPlayers) {
+      alert('Cannot join a full room');
       e.preventDefault();
     }
     else {

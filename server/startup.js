@@ -398,22 +398,8 @@ Meteor.startup(function() {
 
   function playerJoinRoom(room, isHost) {
     var r = Rooms.findOne(room._id);
-
-    if (!Meteor.user()) {
-      console.log('User was not signed in and therefore could not join room ' + r.name);
-      return;
-    }
-
-    // There is a client-side check, but if user somehow manages to bypass that,
-    //   here is the server-side check
-    if (r.state === 'PLAYING' || r.state === 'FINISHED') {
-      console.log('User attempted to join a game in session, room ' + r.name);
-      return;
-    }
-
     var username = Meteor.user().username;
     var currentPlayer = Players.findOne({name: username});
-
 
     // TODO: For testing purposes only
     var chat = Chats.findOne({roomId: r._id});
@@ -425,37 +411,29 @@ Meteor.startup(function() {
       chatId = Chats.insert(new Chat(r._id, r.name));
     }
 
-
     // TODO: For testing only
     if (currentPlayer.name === 'one') {
       Players.update(currentPlayer._id, {$set: {isHost: true}});
       Rooms.update(r._id, {$set: {hostPlayerId: currentPlayer._id}});
     }
 
-    // There's space left in the room for this player to join
-    if (r.players.length < r.maxPlayers) {
-      Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
-        if (!err) {
-          // Update player room reference
-          Players.update(currentPlayer._id, {$set: {roomId: r._id}});
+    Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
+      if (!err) {
+        // Update player room reference
+        Players.update(currentPlayer._id, {$set: {roomId: r._id}});
 
-          if (isHost) {
-            Players.update(currentPlayer._id, {$set: {isHost: true}});
-            Rooms.update(r._id, {$set: {hostPlayerId: currentPlayer._id}});
-          }
+        if (isHost) {
+          Players.update(currentPlayer._id, {$set: {isHost: true}});
+          Rooms.update(r._id, {$set: {hostPlayerId: currentPlayer._id}});
+        }
 
-          console.log(currentPlayer.name + ' joined room ' + r.name);
-          sendServerMessage(r._id, currentPlayer.name + ' joined the room');
-        }
-        else {
-          console.log('Error joining room ' + r.name);
-        }
-      });
-    }
-    else {
-      console.log('Player ' + currentPlayer.name + ' attempted to join full room ' + r.name);
-      // TODO: Send a message to the current player that the room is full
-    }
+        console.log(currentPlayer.name + ' joined room ' + r.name);
+        sendServerMessage(r._id, currentPlayer.name + ' joined the room');
+      }
+      else {
+        console.log('Error joining room ' + r.name);
+      }
+    });
   }
 
   function playerLeaveRoom(roomId, thisPlayer, status) {
