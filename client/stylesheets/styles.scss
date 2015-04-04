@@ -115,12 +115,16 @@ body {
     text-align: center;
     font-family: 'Muli', sans-serif;
     p {
+      // background-color: tan;
       margin-bottom: 24px;
       &:last-of-type {
         margin-bottom: 0;
       }
       a {
+        // background-color: orange;
         font-size: 1.3em;
+        display: block;
+        padding: 14px;
       }
     }
   }
@@ -167,17 +171,21 @@ body {
   }
   section#host-section {
     // background-color: yellow;
-    margin-top: 48px;
+    margin-top: 16px;
     text-align: center;
-    form#host-game-form {
-      input#host-game-name {
-        margin-bottom: 48px;
-        font-size: 1.3em;
-      }
-      button#host-game-create {
-        font-family: 'Muli', sans-serif;
-        font-size: 1.3em;
-      }
+    h3 {
+      font-size: 1.5em;
+      margin-bottom: 24px;
+    }
+    input#host-game-name {
+      margin-bottom: 16px;
+      font-size: 1.3em;
+    }
+    a#host-game-create {
+      // background-color: yellow;
+      font-family: 'Muli', sans-serif;
+      font-size: 1.3em;
+      display: block;
     }
   }
   section#game-status {
