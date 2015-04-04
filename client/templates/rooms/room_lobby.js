@@ -44,9 +44,6 @@ Template.roomLobby.helpers({
   },
   showPlayersList: function() {
     return Session.get('showPlayersList');
-  },
-  showVoteButtons: function() {
-    return Session.get('showVoteButtons');
   }
 });
 
@@ -69,21 +66,10 @@ Template.roomLobby.events({
   'click #players-tab': function() {
     if (!Session.get('showPlayersList')) {
       Session.set('showPlayersList', true);
-      Session.set('showVoteButtons', false);
     }
   },
   'click #chat-tab': function() {
     if (Session.get('showPlayersList')) {
-      Session.set('showPlayersList', false);
-      Session.set('showVoteButtons', false);
-    }
-  },
-  'click #vote-toggle': function() {
-    if (Session.get('showVoteButtons')) {
-      Session.set('showVoteButtons', false);
-    }
-    else {
-      Session.set('showVoteButtons', true);
       Session.set('showPlayersList', false);
     }
   },
@@ -92,9 +78,6 @@ Template.roomLobby.events({
   },
   'click #vote-no': function() {
     Meteor.call('voteLynchNo', this);
-  },
-  'click #vote-abstain': function() {
-    Meteor.call('voteLynchAbstain', this);
   },
   'click #show-leave-room-modal': function(e) {
     e.preventDefault();

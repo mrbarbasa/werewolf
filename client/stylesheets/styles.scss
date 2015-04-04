@@ -317,7 +317,6 @@ body {
   section#vote-section {
     // background-color: yellow;
     margin-top: 10px;
-    height: 251px;
     padding: 10px 15px;
     text-align: center;
     background-color: #F8F8F8;
@@ -326,9 +325,10 @@ body {
     }
     p {
       // background-color: orange;
-      margin: 24px;
       button {
         font-family: 'Muli', sans-serif;
+        width: 100%;
+        font-size: 1.1em;
       }
     }
   }

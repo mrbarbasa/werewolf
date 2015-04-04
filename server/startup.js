@@ -15,8 +15,7 @@ Meteor.startup(function() {
     playerScanPlayer: playerScanPlayer,
     playerAccusePlayer: playerAccusePlayer,
     voteLynchYes: voteLynchYes,
-    voteLynchNo: voteLynchNo,
-    voteLynchAbstain: voteLynchAbstain
+    voteLynchNo: voteLynchNo
   });
 
   // TODO: For testing only
@@ -93,7 +92,6 @@ Meteor.startup(function() {
         Rooms.update(r._id, {$set: {playerAccusedId: null}});
         Rooms.update(r._id, {$set: {yesLynchVotes: 0}});
         Rooms.update(r._id, {$set: {noLynchVotes: 0}});
-        Rooms.update(r._id, {$set: {abstainLynchVotes: 0}});
       }
       else if (seconds === 11) { // TODO: Set to 31 after testing
         if (!gameOver(r)) {
@@ -120,16 +118,10 @@ Meteor.startup(function() {
           if (p.accusedVotes >= Rooms.findOne(r._id).minAccusedVotes) {
             playersAccused.push({
               _id: p._id,
+              name: p.name,
               accusedVotes: p.accusedVotes
             });
           }
-
-          // Reset each player's accusations for the next day's accusation round
-          Players.update(p._id, {$set: {accusedPlayerId: null}});
-          Players.update(p._id, {$set: {accusedVotes: 0}});
-
-          // Reset each player's vote for the possibly upcoming judgment round
-          Players.update(p._id, {$set: {hasVoted: false}});
         });
 
         // Place player with most votes on trial
@@ -158,6 +150,22 @@ Meteor.startup(function() {
       else if (seconds === 51 && Rooms.findOne(r._id).round === 'JUDGMENT') { // TODO: Set to 201 after testing
         // DAY phase, verdict: 5 seconds, from 201 to 205
         Rooms.update(r._id, {$set: {round: 'VERDICT'}});
+
+        var p;
+        Rooms.findOne(r._id).players.forEach(function(player) {
+          p = Players.findOne(player._id);
+          // If player has not voted after judgment round is over, player abstained
+          if (!p.hasVoted) {
+            sendServerMessage(r._id, p.name + ' abstained');
+          }
+
+          // Reset each player's accusations for the next day's accusation round
+          Players.update(p._id, {$set: {accusedPlayerId: null}});
+          Players.update(p._id, {$set: {accusedVotes: 0}});
+
+          // Reset each player's vote for the next day's judgment round
+          Players.update(p._id, {$set: {hasVoted: false}});
+        });
 
         // If votes are majority Yes compared to No, then player on trial is lynched
         // Abstain votes have no weight, meaning if everyone abstains but one votes Yes, player is lynched
@@ -308,7 +316,6 @@ Meteor.startup(function() {
     Rooms.update(r._id, {$set: {playerAccusedId: null}});
     Rooms.update(r._id, {$set: {yesLynchVotes: 0}});
     Rooms.update(r._id, {$set: {noLynchVotes: 0}});
-    Rooms.update(r._id, {$set: {abstainLynchVotes: 0}});
     Rooms.update(r._id, {$set: {hostPlayerId: null}});
     Rooms.update(r._id, {$set: {suicidalPlayers: []}});
 
@@ -369,7 +376,6 @@ Meteor.startup(function() {
     Rooms.update(testRoom._id, {$set: {playerAccusedId: null}});
     Rooms.update(testRoom._id, {$set: {yesLynchVotes: 0}});
     Rooms.update(testRoom._id, {$set: {noLynchVotes: 0}});
-    Rooms.update(testRoom._id, {$set: {abstainLynchVotes: 0}});
     Rooms.update(testRoom._id, {$set: {hostPlayerId: null}});
     Rooms.update(testRoom._id, {$set: {suicidalPlayers: []}});
 
@@ -614,16 +620,6 @@ Meteor.startup(function() {
       Rooms.update(room._id, {$set: {noLynchVotes: room.noLynchVotes + 1}});
       Players.update(currentPlayer._id, {$set: {hasVoted: true}});
       sendServerMessage(room._id, currentPlayer.name + ' voted innocent');
-    }
-  }
-
-  function voteLynchAbstain(r) {
-    var room = Rooms.findOne(r._id);
-    var currentPlayer = Players.findOne({name: Meteor.user().username});
-    if (!currentPlayer.hasVoted) {
-      Rooms.update(room._id, {$set: {abstainLynchVotes: room.abstainLynchVotes + 1}});
-      Players.update(currentPlayer._id, {$set: {hasVoted: true}});
-      sendServerMessage(room._id, currentPlayer.name + ' abstained');
     }
   }
 

@@ -63,18 +63,22 @@
           </section>
         </div>
       </div>
+      {{#if isJudgmentRound}}
+        <div class="row">
+          <div class="col-sm-6 col-sm-offset-3">
+            <section id="vote-section">
+              <h5 id="player-accused">{{playerAccused}}</h5>
+              <p><button id="vote-yes" class="btn btn-default">Yes</button></p>
+              <p><button id="vote-no" class="btn btn-default">No</button></p>
+            </section>
+          </div>
+        </div>
+      {{/if}}
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
           <section id="actions-section" class="clearfix">
             <p>
               <a href="#" id="players-tab">Players</a>
-              {{#if isPlaying}}
-                {{#if isDayPhase}}
-                  {{#if isJudgmentRound}}
-                    <a href="#" id="vote-toggle">Vote</a>
-                  {{/if}}
-                {{/if}}
-              {{/if}}
             </p>
             <p>
               <a href="#" id="chat-tab">Chat</a>
@@ -89,20 +93,7 @@
           {{#if showPlayersList}}
             {{> playersList}}
           {{else}}
-            {{#if showVoteButtons}}
-              <section id="vote-section">
-                {{#if isDayPhase}}
-                  {{#if isJudgmentRound}}
-                    <h5 id="player-accused">{{playerAccused}}</h5>
-                    <p><button id="vote-yes" class="btn btn-default">Yes</button></p>
-                    <p><button id="vote-no" class="btn btn-default">No</button></p>
-                    <p><button id="vote-abstain" class="btn btn-default">Abstain</button></p>
-                  {{/if}}
-                {{/if}}
-              </section>
-            {{else}}
-              {{> chatBox}}
-            {{/if}}
+            {{> chatBox}}
           {{/if}}
         </div>
       </div>
