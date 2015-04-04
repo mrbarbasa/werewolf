@@ -54,6 +54,7 @@ Meteor.startup(function() {
 
   function roomCreate(roomName) {
     var roomId = Rooms.insert(new Room(roomName));
+    Chats.insert(new Chat(roomId, roomName));
     playerJoinRoom(Rooms.findOne(roomId), true);
 
     return {
@@ -414,7 +415,7 @@ Meteor.startup(function() {
     var currentPlayer = Players.findOne({name: username});
 
 
-    // TODO: Move to roomCreate method later
+    // TODO: For testing purposes only
     var chat = Chats.findOne({roomId: r._id});
     var chatId = null;
     if (chat) {
