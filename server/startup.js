@@ -93,7 +93,7 @@ Meteor.startup(function() {
         Rooms.update(r._id, {$set: {yesLynchVotes: 0}});
         Rooms.update(r._id, {$set: {noLynchVotes: 0}});
       }
-      else if (seconds === 11) { // TODO: Set to 31 after testing
+      else if (seconds === 31) {
         if (!gameOver(r)) {
           // DAY phase, discussion: 90 seconds, from 31 to 120
           Rooms.update(r._id, {$set: {message: 'It is day.  The villagers gather to discuss the events of the night.'}});
@@ -102,12 +102,12 @@ Meteor.startup(function() {
           Rooms.update(r._id, {$set: {playerKilled: false}});
         }
       }
-      else if (seconds === 21) { // TODO: Set to 121 after testing
+      else if (seconds === 121) {
         // DAY phase, accusation: 30 seconds, from 121 to 150
         Rooms.update(r._id, {$set: {message: 'The villagers vote for who to place on trial.'}});
         Rooms.update(r._id, {$set: {round: 'ACCUSATION'}});
       }
-      else if (seconds === 31) { // TODO: Set to 151 after testing
+      else if (seconds === 151) {
         // DAY phase, defense: 20 seconds, from 151 to 170
 
         // Gather all players eligible for trial
@@ -142,12 +142,12 @@ Meteor.startup(function() {
           Rooms.update(r._id, {$set: {round: 'DUSK'}});
         }
       }
-      else if (seconds === 41 && Rooms.findOne(r._id).round === 'DEFENSE') { // TODO: Set to 171 after testing
+      else if (seconds === 171 && Rooms.findOne(r._id).round === 'DEFENSE') {
         // DAY phase, judgment: 30 seconds, from 171 to 200
         Rooms.update(r._id, {$set: {message: "It's judgment time.  Should this fellow be lynched?"}});
         Rooms.update(r._id, {$set: {round: 'JUDGMENT'}});
       }
-      else if (seconds === 51 && Rooms.findOne(r._id).round === 'JUDGMENT') { // TODO: Set to 201 after testing
+      else if (seconds === 201 && Rooms.findOne(r._id).round === 'JUDGMENT') {
         // DAY phase, verdict: 5 seconds, from 201 to 205
         Rooms.update(r._id, {$set: {round: 'VERDICT'}});
 
@@ -178,15 +178,13 @@ Meteor.startup(function() {
           Rooms.update(r._id, {$set: {message: 'Villager ' + p.name + ' lives to see another day.'}});
         }
       }
-      else if (seconds === 55 || (seconds === 35 && Rooms.findOne(r._id).round === 'DUSK')) { // TODO: For testing only
-      // else if (seconds === 205 || (seconds === 155 && Rooms.findOne(r._id).round === 'DUSK')) { // TODO: Use this after testing
+      else if (seconds === 205 || (seconds === 155 && Rooms.findOne(r._id).round === 'DUSK')) {
         if (!gameOver(r)) {
           // Move on to the next night phase
           seconds = 0;
         }
       }
 
-      // TODO: Remove latter portion of check
       var room = Rooms.findOne(r._id);
       if (room.state === 'FINISHED' || (room.players.length + 2) <= room.maxPlayers) {
         Meteor.clearInterval(currentGame);
@@ -241,45 +239,6 @@ Meteor.startup(function() {
     var roles = _.shuffle(Roles.find({}, {limit: playerCount}).fetch());
     var player = null;
 
-    // TODO: For werewolf kill and seer scan testing purposes only
-    // for (var i = 0; i < playerCount; i++) {
-    //   player = r.players[i];
-    //   if (player.name === 'one') {
-    //     Players.update(player._id, {$set: {role: 'WEREWOLF'}}, null, function(err) {
-    //       if (!err) {
-    //         console.log('Successfully assigned role to ' + player.name);
-    //       }
-    //       else {
-    //         console.log('Failed to assign role to player ' + player.name);
-    //         console.log(err.reason);
-    //       }
-    //     });
-    //   }
-    //   else if (player.name === 'two') {
-    //     Players.update(player._id, {$set: {role: 'SEER'}}, null, function(err) {
-    //       if (!err) {
-    //         console.log('Successfully assigned role to ' + player.name);
-    //       }
-    //       else {
-    //         console.log('Failed to assign role to player ' + player.name);
-    //         console.log(err.reason);
-    //       }
-    //     });
-    //   }
-    //   else {
-    //     Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
-    //       if (!err) {
-    //         console.log('Successfully assigned role to ' + player.name);
-    //       }
-    //       else {
-    //         console.log('Failed to assign role to player ' + player.name);
-    //         console.log(err.reason);
-    //       }
-    //     });
-    //   }
-    // }
-
-    // TODO: Uncomment later after testing
     for (var i = 0; i < playerCount; i++) {
       player = r.players[i];
       Players.update(player._id, {$set: {role: roles[i].name}}, null, function(err) {
