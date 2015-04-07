@@ -8,7 +8,6 @@ Meteor.startup(function() {
     executeUserAction: executeUserAction,
     roomCreate: roomCreate,
     startGame: startGame,
-    gameCleanup: gameCleanup,
     playerJoinRoom: playerJoinRoom,
     playerLeaveRoom: playerLeaveRoom,
     playerKillPlayer: playerKillPlayer,
@@ -17,9 +16,6 @@ Meteor.startup(function() {
     voteLynchYes: voteLynchYes,
     voteLynchNo: voteLynchNo
   });
-
-  // TODO: For testing only
-  Players.update({name: 'one'}, {$set: {isHost: true}});
 
   function sendServerMessage(roomId, message, filter) {
     var msg = {
@@ -219,12 +215,6 @@ Meteor.startup(function() {
     setGameStartTime(r);
     // Randomly assign roles to players once the game starts
     assignRoles(r);
-
-    // TODO: For testing only
-    Players.find().forEach(function(p) {
-      Players.update(p._id, {$set: {roomId: r._id}});
-    });
-
     console.log('Finished game setup');
   }
 
@@ -253,103 +243,6 @@ Meteor.startup(function() {
     }
   }
 
-  function gameCleanup(r) {
-    // Room cleanup
-    Rooms.update(r._id, {$set: {state: 'WAITING'}}, null, function(err) {
-      if (!err) {
-        console.log('Changed ' + r.name + ' room state to WAITING');
-      }
-    });
-    Rooms.update(r._id, {$set: {goodCount: 6}});
-    Rooms.update(r._id, {$set: {evilCount: 2}});
-    Rooms.update(r._id, {$set: {livingPlayers: 8}});
-    Rooms.update(r._id, {$set: {phase: null}});
-    Rooms.update(r._id, {$set: {round: null}});
-    Rooms.update(r._id, {$set: {startTime: null}});
-    Rooms.update(r._id, {$set: {seconds: 0}});
-    Rooms.update(r._id, {$set: {message: null}});
-    Rooms.update(r._id, {$set: {mode: 'EASY'}});
-    Rooms.update(r._id, {$set: {playerKilled: false}});
-    Rooms.update(r._id, {$set: {playerScanned: false}});
-    Rooms.update(r._id, {$set: {minAccusedVotes: 2}});
-    Rooms.update(r._id, {$set: {playerAccusedId: null}});
-    Rooms.update(r._id, {$set: {yesLynchVotes: 0}});
-    Rooms.update(r._id, {$set: {noLynchVotes: 0}});
-    Rooms.update(r._id, {$set: {hostPlayerId: null}});
-    Rooms.update(r._id, {$set: {suicidalPlayers: []}});
-
-    // TODO: Remove after testing
-    // Player cleanup
-    Players.find().forEach(function(p) {
-      Players.update(p._id, {$set: {role: null}});
-      Players.update(p._id, {$set: {isAlive: true}});
-      Players.update(p._id, {$set: {roomId: null}});
-      Players.update(p._id, {$set: {accusedPlayerId: null}});
-      Players.update(p._id, {$set: {accusedVotes: 0}});
-      Players.update(p._id, {$set: {hasVoted: false}});
-      Players.update(p._id, {$set: {hasBeenScanned: false}});
-    });
-
-    // TODO: Use this instead, after testing
-    // Player cleanup
-    // Rooms.findOne({name: r.name}).players.forEach(function(p) {
-    //   Players.update(p._id, {$set: {role: null}});
-    //   Players.update(p._id, {$set: {isAlive: true}});
-    //   Players.update(p._id, {$set: {isHost: false}}); // TODO: Maybe not until leaving room
-    //   Players.update(p._id, {$set: {roomId: null}}); // TODO: Maybe not until leaving room
-    // });
-
-    //--- TODO: For testing purposes only
-    // Hello room cleanup
-    var testRoom = Rooms.findOne({name: 'Hello'});
-    Rooms.update(testRoom._id, {$set: {players: []}});
-    Chats.update({roomId: testRoom._id}, {$set: {messages: []}});
-    var playerNames = ['three', 'four', 'five', 'six', 'seven', 'eight'];
-    var currentPlayer;
-    for (var i = 0; i < playerNames.length; i++) {
-      currentPlayer = Players.findOne({name: playerNames[i]});
-      Rooms.update(testRoom._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
-        if (!err) {
-          console.log(currentPlayer.name + ' joined room ' + testRoom.name);
-        }
-      });
-    }
-
-    Rooms.update(testRoom._id, {$set: {state: 'WAITING'}}, null, function(err) {
-      if (!err) {
-        console.log('Changed ' + testRoom.name + ' room state to WAITING');
-      }
-    });
-    Rooms.update(testRoom._id, {$set: {goodCount: 6}});
-    Rooms.update(testRoom._id, {$set: {evilCount: 2}});
-    Rooms.update(testRoom._id, {$set: {livingPlayers: 8}});
-    Rooms.update(testRoom._id, {$set: {phase: null}});
-    Rooms.update(testRoom._id, {$set: {round: null}});
-    Rooms.update(testRoom._id, {$set: {startTime: null}});
-    Rooms.update(testRoom._id, {$set: {seconds: 0}});
-    Rooms.update(testRoom._id, {$set: {message: null}});
-    Rooms.update(testRoom._id, {$set: {mode: 'EASY'}});
-    Rooms.update(testRoom._id, {$set: {playerKilled: false}});
-    Rooms.update(testRoom._id, {$set: {playerScanned: false}});
-    Rooms.update(testRoom._id, {$set: {minAccusedVotes: 2}});
-    Rooms.update(testRoom._id, {$set: {playerAccusedId: null}});
-    Rooms.update(testRoom._id, {$set: {yesLynchVotes: 0}});
-    Rooms.update(testRoom._id, {$set: {noLynchVotes: 0}});
-    Rooms.update(testRoom._id, {$set: {hostPlayerId: null}});
-    Rooms.update(testRoom._id, {$set: {suicidalPlayers: []}});
-
-    // All rooms cleanup
-    Rooms.find().forEach(function(room) {
-      if (room.name !== 'Hello') {
-        Rooms.update(room._id, {$set: {players: []}});
-        Chats.update({roomId: room._id}, {$set: {messages: []}});
-      }
-    });
-    //--- END: For testing purposes only
-
-    console.log('Finished game cleanup');
-  }
-
   function executeUserAction() {
     var gstats = new GlobalStats();
     console.log(Meteor.userId());
@@ -359,7 +252,7 @@ Meteor.startup(function() {
 
   function GlobalStats() {
     this.numPlayersOnline = Meteor.users.find({'status.online': true}).count();
-    this.numPlayersPlaying = 0; // TODO: Implement if needed
+    this.numPlayersPlaying = 0;
     this.numPlayersWaiting = this.numPlayersOnline - this.numPlayersPlaying;
     this.totalRooms = Rooms.find().count();
     this.numRoomsPlaying = Rooms.find({state: 'PLAYING'}).count();
@@ -370,22 +263,6 @@ Meteor.startup(function() {
     var r = Rooms.findOne(room._id);
     var username = Meteor.user().username;
     var currentPlayer = Players.findOne({name: username});
-
-    // TODO: For testing purposes only
-    var chat = Chats.findOne({roomId: r._id});
-    var chatId = null;
-    if (chat) {
-      chatId = chat._id;
-    }
-    else {
-      chatId = Chats.insert(new Chat(r._id, r.name));
-    }
-
-    // TODO: For testing only
-    if (currentPlayer.name === 'one') {
-      Players.update(currentPlayer._id, {$set: {isHost: true}});
-      Rooms.update(r._id, {$set: {hostPlayerId: currentPlayer._id}});
-    }
 
     Rooms.update(r._id, {$addToSet: {players: currentPlayer}}, null, function(err) {
       if (!err) {
@@ -612,22 +489,25 @@ Meteor.startup(function() {
     }
   }
 
-  // TODO: Uncomment later after testing
-  // Rooms.find().observeChanges({
-  //   changed: function(id, newFields) {
-  //     var r = Rooms.findOne(id);
+  Rooms.find().observeChanges({
+    changed: function(id, newFields) {
+      var r = Rooms.findOne(id);
 
-  //     if (newFields.players) {
-  //       // If the room is empty, delete the room
-  //       if (newFields.players.length === 0) {
-  //         Rooms.remove(r._id, function(err) {
-  //           if (!err) {
-  //             console.log('Deleted empty room ' + r.name);
-  //           }
-  //         })
-  //       }
-  //     }
-  //   }
-  // });
+      if (newFields.players) {
+        // If the room is empty, delete the room
+        if (newFields.players.length === 0) {
+          Chats.remove({roomId: r._id}, function(err) {
+            if (!err) {
+              Rooms.remove(r._id, function(err) {
+                if (!err) {
+                  console.log('Deleted empty room ' + r.name);
+                }
+              });
+            }
+          });
+        }
+      }
+    }
+  });
 
 });

@@ -51,10 +51,6 @@ Template.roomLobby.events({
   'click #start-game': function() {
     Meteor.call('startGame', this);
   },
-  // TODO: For testing only
-  'click #game-cleanup': function() {
-    Meteor.call('gameCleanup', this);
-  },
   'click .leave-room': function() {
     Meteor.call('playerLeaveRoom', this._id);
   },
