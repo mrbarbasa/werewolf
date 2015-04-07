@@ -8,6 +8,12 @@ Production: [werewolf.marifel.io](http://werewolf.marifel.io/)
 ### Site is Loading
 You might be brought to a page saying that the site is loading.  This is because the app is deployed on Meteor's servers for now.  I plan on using my own server later.
 
+### Starting Up the Project
+1. Install Meteor if you haven't yet: `curl https://install.meteor.com/ | sh`.
+2. Fork and clone this repo.
+3. In the project directory, type `meteor`.
+4. You may see the following Sass error the first time you run the app: `Scss compiler error: undefined` and `file to import not found or unreadable`.  This is due to the `fourseven:scss` Meteor package this project utilizes.  You will just need to press `Ctrl+C` and rerun `meteor` if this happens.
+
 ### Currently Supports 8 Players
 The game only supports exactly 8 players at this time.  I plan to support 5 to 18 players in a future version.
 
