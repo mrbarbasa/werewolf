@@ -29,3 +29,29 @@ The game only supports exactly 8 players at this time.  I plan to support 5 to 1
 - It is very important to sign in as player `one` if you wish to test out this game by yourself.  Only player `one` is assigned as the host to room `Hello`.
 - Each round in the development version is only allocated 10 seconds, while the production version has the actual game timer.
 - The production version is a work in progress and is not yet production quality.
+
+### How to Play
+You are randomly assigned one of three roles: Villager, Seer, or Werewolf.  In a game of 8 players, there are 5 villagers, 1 seer (on the villagers' team), and 2 werewolves.  The game is played in alternating night and day phases, and the day phase has multiple rounds: discussion, accusation, defense, dusk, judgment, and verdict.
+
+The night phase lasts for 30 seconds.  During the night phase, werewolves may choose one person to kill from the Players list.  Of the 2 werewolves, whoever is the first to click the kill button will make the single kill for the night (first-come, first-served is not the best implementation for what is supposed to be a team effort and I plan to change it in a future version).  If the night timer runs out before the werewolves make a decision, no one is killed that night.
+
+Also during the night phase, the seer may choose one person to scan.  This action identifies whether or not that person is a werewolf or not.  Again, if the night timer runs out before the seer makes a decision, no one is scanned that night.
+
+The day phase has the following rounds:
+
+First two rounds:  
+- Discussion (90 seconds): Players try to figure out who the werewolves are.
+- Accusation (30 seconds): Players vote for who they think is a werewolf.
+
+If someone is goes on trial (must have 2 votes):  
+- Defense (20 seconds): Player on trial speaks in his or her defense.  No one else can speak at this time.
+- Judgment (30 seconds): All players, including the player on trial, gets to vote guilty or innocent.
+- Verdict (5 seconds): Message displays, says if player on trial is lynched or not.
+
+If no one receives enough votes to go on trial:  
+- Dusk (5 seconds): Message displays, says no one goes on trial.
+
+Werewolves win when there are an equal number of villagers/seer as there are werewolves.  Villagers/seer win when all werewolves are eliminated.
+
+
+
