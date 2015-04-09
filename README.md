@@ -26,16 +26,16 @@ The game only supports exactly 8 players at this time.  I plan to support 5 to 1
 6. To clear and stop the game at any point, click on the refresh icon next to the `Chats` link once or twice.  For both players `one` and the other, you will need to exit room `Hello` and then re-enter the room before starting the game again.
 
 ### Things to Note
-- It is very important to sign in as player `one` if you wish to test out this game by yourself.  Only player `one` is assigned as the host to room `Hello`.
+- You must sign in as player `one` if you wish to test out this game by yourself.  Only player `one` is assigned as the host to room `Hello`.
 - Each round in the development version is only allocated 10 seconds, while the production version has the actual game timer.
 - The production version is a work in progress and is not yet production quality.
 
 ### How to Play
 You are randomly assigned one of three roles: Villager, Seer, or Werewolf.  In a game of 8 players, there are 5 villagers, 1 seer (on the villagers' team), and 2 werewolves.  The game is played in alternating night and day phases, and the day phase has multiple rounds: discussion, accusation, defense, dusk, judgment, and verdict.
 
-The night phase lasts for 30 seconds.  During the night phase, werewolves may choose one person to kill from the Players list.  Of the 2 werewolves, whoever is the first to click the kill button will make the single kill for the night (first-come, first-served is not the best implementation for what is supposed to be a team effort and I plan to change it in a future version).  If the night timer runs out before the werewolves make a decision, no one is killed that night.
+The night phase lasts for 30 seconds.  During the night phase, werewolves may choose one person to kill.  Of the 2 werewolves, whoever is the first to click the kill button will make the single kill for the night (first-come, first-served is not the best implementation for what is supposed to be a team effort and I plan to change it in a future version).  If the night timer runs out before the werewolves make a decision, no one is killed that night.
 
-Also during the night phase, the seer may choose one person to scan.  This action identifies whether or not that person is a werewolf or not.  Again, if the night timer runs out before the seer makes a decision, no one is scanned that night.
+Also during the night phase, the seer may choose one person to scan.  This action identifies whether or not that person is a werewolf.  Again, if the night timer runs out before the seer makes a decision, no one is scanned that night.
 
 The day phase has the following rounds:
 
