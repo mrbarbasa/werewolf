@@ -1,6 +1,9 @@
 Template.roomsList.helpers({
   rooms: function() {
     return Rooms.find({state: 'WAITING'});
+  },
+  roomsAvailable: function() {
+    return Rooms.find({state: 'WAITING'}).count() > 0;
   }
 });
 
