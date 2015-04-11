@@ -1,11 +1,7 @@
 Meteor.startup(function() {
 
-  // To call these methods: Meteor.call('getServerTime');
-  // These methods can be called remotely by clients
   Meteor.methods({
     sendChatMessage: sendChatMessage,
-    getServerTime: getServerTime,
-    executeUserAction: executeUserAction,
     roomCreate: roomCreate,
     startGame: startGame,
     playerJoinRoom: playerJoinRoom,
@@ -37,14 +33,6 @@ Meteor.startup(function() {
       playerId: currentPlayer._id
     };
     Chats.update({roomId: currentPlayer.roomId}, {$addToSet: {messages: msg}});
-  }
-
-  function getServerTime(r) {
-    var timeStart = Rooms.findOne(r._id).startTime;
-    // .fromNow() // 3 minutes ago
-    // .fromNow(true) // 3 minutes
-    var timeElapsed = moment(timeStart).fromNow(true);
-    return timeElapsed;
   }
 
   function roomCreate(roomName) {
@@ -241,22 +229,6 @@ Meteor.startup(function() {
         }
       });
     }
-  }
-
-  function executeUserAction() {
-    var gstats = new GlobalStats();
-    console.log(Meteor.userId());
-    console.log(Meteor.user().username);
-    console.log(gstats.numPlayersOnline);
-  }
-
-  function GlobalStats() {
-    this.numPlayersOnline = Meteor.users.find({'status.online': true}).count();
-    this.numPlayersPlaying = 0;
-    this.numPlayersWaiting = this.numPlayersOnline - this.numPlayersPlaying;
-    this.totalRooms = Rooms.find().count();
-    this.numRoomsPlaying = Rooms.find({state: 'PLAYING'}).count();
-    this.numRoomsWaiting = Rooms.find({state: 'WAITING'}).count();;
   }
 
   function playerJoinRoom(room, isHost) {
