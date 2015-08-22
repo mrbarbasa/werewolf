@@ -43,7 +43,7 @@ First two rounds:
 - Discussion (90 seconds): Players try to figure out who the werewolves are.
 - Accusation (30 seconds): Players vote for who they think is a werewolf.
 
-If someone is goes on trial (must have 2 votes):  
+If someone goes on trial (must have 2 votes):  
 - Defense (20 seconds): Player on trial speaks in his or her defense.  No one else can speak at this time.
 - Judgment (30 seconds): All players, including the player on trial, gets to vote guilty or innocent.
 - Verdict (5 seconds): Message displays, says if player on trial is lynched or not.
